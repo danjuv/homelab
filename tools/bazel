@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+this_dir="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+repo_root="$(cd -- "${this_dir}/.." && pwd -P)"
+cache_dir="${repo_root}/.cache/tools"
+bazelisk_path="${cache_dir}/bazelisk"
+
+mkdir -p "${cache_dir}"
+
+if [[ ! -x "${bazelisk_path}" ]]; then
+  os="$(uname | tr '[:upper:]' '[:lower:]')"
+  arch="$(uname -m)"
+
+  case "${arch}" in
+    x86_64 | amd64) arch="amd64" ;;
+    arm64 | aarch64) arch="arm64" ;;
+    *)
+      echo "Unsupported architecture: ${arch}" >&2
+      exit 1
+      ;;
+  esac
+
+  bazelisk_version="v1.20.0"
+  url="https://github.com/bazelbuild/bazelisk/releases/download/${bazelisk_version}/bazelisk-${os}-${arch}"
+
+  echo "Downloading Bazelisk ${bazelisk_version} for ${os}/${arch}..." >&2
+  curl -sSfL "${url}" -o "${bazelisk_path}"
+  chmod +x "${bazelisk_path}"
+fi
+
+exec "${bazelisk_path}" "$@"
+
