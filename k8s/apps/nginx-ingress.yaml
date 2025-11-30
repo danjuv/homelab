@@ -9,5 +9,5 @@ spec:
     repoURL: https://kubernetes.github.io/ingress-nginx
     targetRevision: 1.14.0
   destination:
-    name: "in-cluster"
+    name: "https://kubernetes.default.svc"
     namespace: nginx
