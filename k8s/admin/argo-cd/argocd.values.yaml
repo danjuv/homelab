@@ -11,3 +11,5 @@ server:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     tls: true
+redisSecretInit:
+  enabled: false
