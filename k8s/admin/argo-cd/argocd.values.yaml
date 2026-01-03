@@ -1,0 +1,13 @@
+global:
+  domain: argocd.home.lab
+server:
+  replicas: 1
+  ingress:
+    enabled: true
+    path: /
+    pathType: Prefix
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    tls: true
