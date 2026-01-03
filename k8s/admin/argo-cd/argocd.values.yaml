@@ -13,3 +13,6 @@ server:
     tls: true
 redisSecretInit:
   enabled: false
+config:
+  cm:
+    timeout.reconciliation: 60s
