@@ -18,7 +18,7 @@ spec:
       path: k8s/admin/ingress-nginx
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: ingress-nginx
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
