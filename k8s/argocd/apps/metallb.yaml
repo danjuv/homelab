@@ -14,4 +14,8 @@ spec:
     namespace: metallb-system
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true
+    - CreateNamespace=true  
+    automated: 
+      prune: true 
+      selfHeal: true
+      enabled: true
