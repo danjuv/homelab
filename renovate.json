@@ -12,7 +12,7 @@
   "packageRules": [
     {
       "matchManagers": ["argocd"],
-      "matchDepNames": ["seerr-chart"],
+      "matchDepNames": ["ghcr.io/seerr-team/seerr/seerr-chart/seerr-chart"],
       "registryUrls": ["https://ghcr.io"],
       "packageName": "seerr-team/seerr/seerr-chart"
     }
