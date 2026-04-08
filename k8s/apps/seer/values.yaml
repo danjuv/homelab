@@ -1,0 +1,8 @@
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - host: seer.home.lab
+      paths:
+        - path: /
+          pathType: Prefix
