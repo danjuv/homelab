@@ -4,17 +4,23 @@
     "config:recommended"
   ],
   "argocd": {
-    "fileMatch": ["k8s/argocd/apps/.+\\.yaml$"]
+    "managerFilePatterns": [
+      "/k8s/argocd/apps/.+\\.yaml$/"
+    ]
   },
   "kustomize": {
-    "fileMatch": ["k8s/admin/metallb/kustomization\\.yaml$"]
+    "managerFilePatterns": [
+      "/k8s/admin/metallb/kustomization\\.yaml$/"
+    ]
   },
   "packageRules": [
     {
       "matchManagers": ["argocd"],
       "matchDepNames": ["ghcr.io/seerr-team/seerr/seerr-chart/seerr-chart"],
       "registryUrls": ["https://ghcr.io"],
-      "packageName": "seerr-team/seerr/seerr-chart"
+      "matchPackageNames": [
+        "seerr-team/seerr/seerr-chart"
+      ]
     }
   ]
 }
