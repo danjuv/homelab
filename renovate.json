@@ -8,5 +8,13 @@
   },
   "kustomize": {
     "fileMatch": ["k8s/admin/metallb/kustomization\\.yaml$"]
-  }
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["argocd"],
+      "matchDepNames": ["seerr-chart"],
+      "registryUrls": ["https://ghcr.io"],
+      "packageName": "seerr-team/seerr/seerr-chart"
+    }
+  ]
 }
