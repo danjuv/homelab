@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: seer
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: seer
+      repoURL: oci://ghcr.io/seerr-team/seerr/seerr-chart
+      targetRevision: 3.1.0
+      helm:
+        valueFiles:
+          - $values/k8s/apps/seer/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/seer
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: seer
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true  
+    automated: 
+      prune: true 
+      selfHeal: true
+      enabled: true
