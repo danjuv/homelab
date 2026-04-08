@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "argocd": {
+    "fileMatch": ["k8s/argocd/apps/.+\\.yaml$"]
+  },
+  "kustomize": {
+    "fileMatch": ["k8s/admin/metallb/kustomization\\.yaml$"]
+  }
+}
