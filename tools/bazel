@@ -12,6 +12,14 @@ if [[ ! -x "${bazelisk_path}" ]]; then
   os="$(uname | tr '[:upper:]' '[:lower:]')"
   arch="$(uname -m)"
 
+  case "${os}" in
+    linux | darwin) ;;
+    *)
+      echo "Unsupported OS: ${os}" >&2
+      exit 1
+      ;;
+  esac
+
   case "${arch}" in
     x86_64 | amd64) arch="amd64" ;;
     arm64 | aarch64) arch="arm64" ;;
@@ -21,12 +29,32 @@ if [[ ! -x "${bazelisk_path}" ]]; then
       ;;
   esac
 
-  bazelisk_version="v1.20.0"
+  declare -A checksums=(
+    ["linux-amd64"]="22e7d3a188699982f661cf4687137ee52d1f24fec1ec893d91a6c4d791a75de8"
+    ["linux-arm64"]="8ded44b58a0d9425a4178af26cf17693feac3b87bdcfef0a2a0898fcd1afc9f2"
+    ["darwin-amd64"]="023225736cea5dc88f2b0807d5b1af4eb0f69a4ed45e3994b2c18c263bc80e48"
+    ["darwin-arm64"]="dea3f3f5de2dbc5e269e0132cdd369d5efe738f7b973d5d4eb2b4f7055a97b39"
+  )
+  expected_checksum="${checksums[${os}-${arch}]}"
+
+  bazelisk_version="v1.28.1"
   url="https://github.com/bazelbuild/bazelisk/releases/download/${bazelisk_version}/bazelisk-${os}-${arch}"
+  tmp_path="${bazelisk_path}.tmp"
 
   echo "Downloading Bazelisk ${bazelisk_version} for ${os}/${arch}..." >&2
-  curl -sSfL "${url}" -o "${bazelisk_path}"
-  chmod +x "${bazelisk_path}"
+  curl -sSfL "${url}" -o "${tmp_path}"
+
+  actual_checksum="$(sha256sum "${tmp_path}" | cut -d' ' -f1)"
+  if [[ "${actual_checksum}" != "${expected_checksum}" ]]; then
+    echo "Checksum mismatch for bazelisk-${os}-${arch}:" >&2
+    echo "  expected: ${expected_checksum}" >&2
+    echo "  actual:   ${actual_checksum}" >&2
+    rm -f "${tmp_path}"
+    exit 1
+  fi
+
+  chmod +x "${tmp_path}"
+  mv "${tmp_path}" "${bazelisk_path}"
 fi
 
 exec "${bazelisk_path}" "$@"
