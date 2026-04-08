@@ -1,5 +1,5 @@
 provider:
-  name: pi-hole
+  name: pihole
 env:
   - name: EXTERNAL_DNS_PIHOLE_SERVER
     value: "192.168.50.71:8182"
