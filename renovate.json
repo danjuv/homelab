@@ -17,7 +17,7 @@
     {
       "matchManagers": ["argocd"],
       "matchDepNames": ["ghcr.io/seerr-team/seerr/seerr-chart/seerr-chart"],
-      "packageName": "seerr-team/seerr/seerr-chart",
+      "overridePackageName": "seerr-team/seerr/seerr-chart",
       "registryUrls": ["https://ghcr.io"]
     }
   ]
