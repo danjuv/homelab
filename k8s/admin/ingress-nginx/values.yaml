@@ -1,4 +1,5 @@
 controller:
   admissionWebhooks:
     enabled: false
-loadBalancerClass: tailscale
+service:
+  loadBalancerClass: tailscale
