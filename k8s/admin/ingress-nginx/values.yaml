@@ -1,3 +1,6 @@
 controller:
   admissionWebhooks:
     enabled: false
+ingressClassResource:
+  name: tailscale
+  enabled: true
