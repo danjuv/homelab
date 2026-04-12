@@ -5,6 +5,6 @@ ingress:
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200m"
     hosts:
-      - host: tautulli-web.home.lab
+      - host: tautulli.home.lab
         path: /
         pathType: Prefix
