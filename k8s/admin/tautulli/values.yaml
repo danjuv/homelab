@@ -1,0 +1,8 @@
+ingress:
+  main:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - host: tautulli-web.home.lab
+        path: /
+        pathType: Prefix

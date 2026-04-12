@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tautulli
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: tautulli
+      repoURL: oci://oci.trueforge.org/truecharts/tautulli
+      targetRevision: 22.1.1
+      helm:
+        valueFiles:
+          - $values/k8s/admin/tautulli/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/admin/tautulli
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tautulli
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true  
+    automated: 
+      prune: true 
+      selfHeal: true
+      enabled: true
