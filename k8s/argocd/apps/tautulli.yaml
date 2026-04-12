@@ -11,11 +11,11 @@ spec:
       targetRevision: 22.1.1
       helm:
         valueFiles:
-          - $values/k8s/admin/tautulli/values.yaml
+          - $values/k8s/apps/tautulli/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
       targetRevision: HEAD
       ref: values
-      path: k8s/admin/tautulli
+      path: k8s/apps/tautulli
   destination:
     server: https://kubernetes.default.svc
     namespace: tautulli
