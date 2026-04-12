@@ -6,10 +6,11 @@ metadata:
 spec:
   project: default
   sources:
-    - chart: sonarr
-      repoURL: oci://oci.trueforge.org/truecharts/sonarr
-      targetRevision: 26.0.3
+    - chart: app-template
+      repoURL: oci://ghcr.io/bjw-s-labs/helm
+      targetRevision: 4.6.2
       helm:
+        releaseName: sonarr
         valueFiles:
           - $values/k8s/apps/sonarr/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
@@ -21,8 +22,8 @@ spec:
     namespace: sonarr
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true  
-    automated: 
-      prune: true 
+    - CreateNamespace=true
+    automated:
+      prune: true
       selfHeal: true
       enabled: true

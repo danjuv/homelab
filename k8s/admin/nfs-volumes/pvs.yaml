@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-downloads
+  name: nfs-downloads-sonarr
 spec:
   capacity:
     storage: 1Ti
@@ -11,7 +11,7 @@ spec:
   storageClassName: ""
   csi:
     driver: nfs.csi.k8s.io
-    volumeHandle: nfs-downloads
+    volumeHandle: nfs-downloads-sonarr
     volumeAttributes:
       server: "192.168.50.80"
       share: "/volume1/downloads"
@@ -23,7 +23,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-movies
+  name: nfs-tv-shows-sonarr
 spec:
   capacity:
     storage: 1Ti
@@ -33,29 +33,7 @@ spec:
   storageClassName: ""
   csi:
     driver: nfs.csi.k8s.io
-    volumeHandle: nfs-movies
-    volumeAttributes:
-      server: "192.168.50.80"
-      share: "/volume1/movies"
-  mountOptions:
-    - nfsvers=4.1
-    - hard
-    - noatime
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: nfs-tv-shows
-spec:
-  capacity:
-    storage: 1Ti
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
-  csi:
-    driver: nfs.csi.k8s.io
-    volumeHandle: nfs-tv-shows
+    volumeHandle: nfs-tv-shows-sonarr
     volumeAttributes:
       server: "192.168.50.80"
       share: "/volume1/tv_shows"
