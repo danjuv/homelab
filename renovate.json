@@ -19,6 +19,12 @@
       "matchDepNames": ["ghcr.io/seerr-team/seerr/seerr-chart/seerr-chart"],
       "overridePackageName": "seerr-team/seerr/seerr-chart",
       "registryUrls": ["https://ghcr.io"]
+    },
+    {
+      "matchManagers": ["argocd"],
+      "matchDepNames": ["oci.trueforge.org/truecharts/tautulli/tautulli"],
+      "overridePackageName": "truecharts/tautulli",
+      "registryUrls": ["https://oci.trueforge.org"]
     }
   ]
 }
