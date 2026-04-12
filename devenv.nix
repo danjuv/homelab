@@ -4,7 +4,7 @@
   packages = [
     pkgs.git
     pkgs.kubectl
-    pkgs.helm
+    pkgs.kubernetes-helm
     pkgs.kustomize
     pkgs.kubeseal
     pkgs.argocd
