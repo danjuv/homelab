@@ -27,6 +27,12 @@
   "packageRules": [
     {
       "matchManagers": ["argocd"],
+      "matchDepNames": ["ghcr.io/bjw-s-labs/helm/app-template/app-template"],
+      "overridePackageName": "bjw-s-labs/helm/app-template",
+      "registryUrls": ["https://ghcr.io"]
+    },
+    {
+      "matchManagers": ["argocd"],
       "matchDepNames": ["ghcr.io/seerr-team/seerr/seerr-chart/seerr-chart"],
       "overridePackageName": "seerr-team/seerr/seerr-chart",
       "registryUrls": ["https://ghcr.io"]
