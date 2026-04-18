@@ -6,7 +6,8 @@ metadata:
 spec:
   project: default
   sources:
-    - repoURL: oci://ghcr.io/bjw-s-labs/helm/app-template
+    - chart: app-template
+      repoURL: oci://ghcr.io/bjw-s-labs/helm/app-template
       targetRevision: 4.6.2
       helm:
         releaseName: sonarr
