@@ -18,7 +18,7 @@
       "customType": "regex",
       "fileMatch": ["k8s/apps/.+/values\\.yaml$"],
       "matchStrings": [
-        "repository:\\s*(?<depName>[^\\s]+)\\n\\s*tag:\\s*[\"']?(?<currentValue>[\\d]+\\.[\\d]+\\.[\\d]+)[\"']?"
+        "repository:\\s*(?<depName>[^\\s]+)\\n\\s*tag:\\s*[\"']?(?<currentValue>[\\d]+\\.[\\d]+\\.[\\d]+(?:-[\\d]+)?)[\"']?"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver"

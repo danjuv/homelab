@@ -3,12 +3,13 @@ controllers:
     containers:
       main:
         image:
-          repository: lscr.io/linuxserver/qbittorrent
-          tag: 5.1.4
+          repository: qbittorrentofficial/qbittorrent-nox
+          tag: 5.1.4-2
         env:
           PUID: "1000"
           PGID: "1000"
           TZ: "Australia/Sydney"
+          QBT_LEGAL_NOTICE: "confirm"
 
 service:
   main:
