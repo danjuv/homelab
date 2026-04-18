@@ -1,0 +1,39 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/prowlarr
+          tag: 2.3.5
+        env:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: "Australia/Sydney"
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 9696
+
+ingress:
+  main:
+    className: nginx
+    hosts:
+      - host: prowlarr-k8s.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: synology-nas-csi
+    globalMounts:
+      - path: /config
