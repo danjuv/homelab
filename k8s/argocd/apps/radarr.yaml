@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sonarr
+  name: radarr
   namespace: argocd
 spec:
   project: default
@@ -10,13 +10,13 @@ spec:
       repoURL: oci://ghcr.io/bjw-s-labs/helm/app-template
       targetRevision: 4.6.2
       helm:
-        releaseName: sonarr
+        releaseName: radarr
         valueFiles:
-          - $values/k8s/apps/sonarr/values.yaml
+          - $values/k8s/apps/radarr/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
       targetRevision: HEAD
       ref: values
-      path: k8s/apps/sonarr
+      path: k8s/apps/radarr
   destination:
     server: https://kubernetes.default.svc
     namespace: media

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nfs-downloads
-  namespace: sonarr
+  namespace: media
 spec:
   accessModes:
     - ReadWriteMany
@@ -10,13 +10,13 @@ spec:
   resources:
     requests:
       storage: 1Ti
-  volumeName: nfs-downloads-sonarr
+  volumeName: nfs-downloads
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: nfs-tv-shows
-  namespace: sonarr
+  namespace: media
 spec:
   accessModes:
     - ReadWriteMany
@@ -24,4 +24,18 @@ spec:
   resources:
     requests:
       storage: 1Ti
-  volumeName: nfs-tv-shows-sonarr
+  volumeName: nfs-tv-shows
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-movies
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1Ti
+  volumeName: nfs-movies

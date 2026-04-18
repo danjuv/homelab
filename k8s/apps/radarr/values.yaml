@@ -1,0 +1,51 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/radarr
+          tag: 6.1.1
+        env:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: "Australia/Sydney"
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 7878
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    hosts:
+      - host: radarr-k8s.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: synology-nas-csi
+    globalMounts:
+      - path: /config
+  downloads:
+    type: persistentVolumeClaim
+    existingClaim: nfs-downloads
+    globalMounts:
+      - path: /downloads
+  movies:
+    type: persistentVolumeClaim
+    existingClaim: nfs-movies
+    globalMounts:
+      - path: /movies
