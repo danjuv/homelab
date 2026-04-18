@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: lscr.io/linuxserver/qbittorrent
-          tag: 5.1.4
+          tag: 14.3.9
         env:
           PUID: "1000"
           PGID: "1000"
