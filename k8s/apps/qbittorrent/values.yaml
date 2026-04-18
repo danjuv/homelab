@@ -1,0 +1,56 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: lscr.io/linuxserver/qbittorrent
+          tag: 5.1.4
+        env:
+          PUID: "1000"
+          PGID: "1000"
+          TZ: "Australia/Sydney"
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8080
+  bittorrent:
+    controller: main
+    type: LoadBalancer
+    ports:
+      bittorrent-tcp:
+        port: 6881
+        protocol: TCP
+      bittorrent-udp:
+        port: 6881
+        protocol: UDP
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    hosts:
+      - host: qbt-k8s.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: synology-nas-csi
+    globalMounts:
+      - path: /config
+  downloads:
+    type: persistentVolumeClaim
+    existingClaim: nfs-downloads
+    globalMounts:
+      - path: /downloads
