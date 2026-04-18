@@ -16,9 +16,11 @@ spec:
       server: "192.168.50.80"
       share: "/volume1/downloads"
   mountOptions:
-    - nfsvers=4.1
+    - nfsvers=3
     - hard
     - noatime
+    - nolock
+    - mountproto=tcp
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -38,6 +40,8 @@ spec:
       server: "192.168.50.80"
       share: "/volume1/tv_shows"
   mountOptions:
-    - nfsvers=4.1
+    - nfsvers=3
     - hard
     - noatime
+    - nolock
+    - mountproto=tcp

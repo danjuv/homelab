@@ -9,6 +9,8 @@ storageClass:
   reclaimPolicy: Retain
   volumeBindingMode: Immediate
   mountOptions:
-    - nfsvers=4.1
+    - nfsvers=3
     - hard
     - noatime
+    - nolock
+    - mountproto=tcp
