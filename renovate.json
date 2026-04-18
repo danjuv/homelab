@@ -13,6 +13,16 @@
       "/k8s/admin/metallb/kustomization\\.yaml$/"
     ]
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["k8s/apps/.+/values\\.yaml$"],
+      "matchStrings": [
+        "repository:\\s*(?<depName>[^\\s]+)\\n\\s*tag:\\s*(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["argocd"],
