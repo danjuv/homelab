@@ -8,7 +8,7 @@ ingress:
           pathType: Prefix
 config:
   persistence:
-    size: 1Gi
+    size: 3Gi
     storageClass: longhorn
     accessModes:
       - ReadWriteOnce

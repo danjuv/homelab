@@ -13,5 +13,6 @@
     pkgs.claude-code
     pkgs.python3
     pkgs.uv
+    pkgs.helm-docs
   ];
 }
