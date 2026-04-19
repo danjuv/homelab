@@ -9,7 +9,7 @@ ingress:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - host: homepage.home.lab
+      - host: home.lab
         paths:
           - path: /
             pathType: Prefix
@@ -20,7 +20,7 @@ config:
     - Media:
         - Sonarr:
             icon: sonarr.png
-            href: http://sonarr-k8s.home.lab
+            href: http://sonarr.home.lab
             description: TV Shows
             widget:
               type: sonarr
@@ -28,7 +28,7 @@ config:
               key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
         - Radarr:
             icon: radarr.png
-            href: http://radarr-k8s.home.lab
+            href: http://radarr.home.lab
             description: Movies
             widget:
               type: radarr
@@ -36,7 +36,7 @@ config:
               key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
         - Prowlarr:
             icon: prowlarr.png
-            href: http://prowlarr-k8s.home.lab
+            href: http://prowlarr.home.lab
             description: Indexer Manager
             widget:
               type: prowlarr
@@ -44,7 +44,7 @@ config:
               key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
         - qBittorrent:
             icon: qbittorrent.png
-            href: http://qbt-k8s.home.lab
+            href: http://qbt.home.lab
             description: Downloads
             widget:
               type: qbittorrent
@@ -62,7 +62,7 @@ config:
               key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
         - Overseerr:
             icon: overseerr.png
-            href: http://seer.home.lab
+            href: http://overseerr.home.lab
             description: Media Requests
             widget:
               type: seerr
@@ -127,4 +127,4 @@ envFrom:
       name: homepage-secrets
 
 env:
-  HOMEPAGE_ALLOWED_HOSTS: homepage.home.lab
+  HOMEPAGE_ALLOWED_HOSTS: home.lab

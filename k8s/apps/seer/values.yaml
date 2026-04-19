@@ -2,7 +2,7 @@ ingress:
   enabled: true
   ingressClassName: nginx
   hosts:
-    - host: seer.home.lab
+    - host: overseerr.home.lab
       paths:
         - path: /
           pathType: Prefix

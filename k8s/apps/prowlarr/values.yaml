@@ -21,7 +21,7 @@ ingress:
   main:
     className: nginx
     hosts:
-      - host: prowlarr-k8s.home.lab
+      - host: prowlarr.home.lab
         paths:
           - path: /
             pathType: Prefix

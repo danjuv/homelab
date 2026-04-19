@@ -34,7 +34,7 @@ ingress:
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200m"
     hosts:
-      - host: qbt-k8s.home.lab
+      - host: qbt.home.lab
         paths:
           - path: /
             pathType: Prefix
