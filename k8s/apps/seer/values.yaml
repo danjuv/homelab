@@ -6,3 +6,10 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+config:
+  persistence:
+    size: 1Gi
+    storageClass: longhorn
+    accessModes:
+      - ReadWriteOnce
+

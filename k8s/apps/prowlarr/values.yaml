@@ -34,6 +34,6 @@ persistence:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
     size: 1Gi
-    storageClass: synology-nas-csi
+    storageClass: longhorn
     globalMounts:
       - path: /config

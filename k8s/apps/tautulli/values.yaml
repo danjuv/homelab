@@ -8,3 +8,9 @@ ingress:
       - host: tautulli.home.lab
         path: /
         pathType: Prefix
+persistence:
+  config:
+    enabled: true
+    mountPath: "/config"
+    size: 1Gi
+    storageClass: longhorn
