@@ -5,7 +5,10 @@ persistence:
 ingress:
   enabled: true
   ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
   tls: true
+  tlsSecret: longhorn-homelab-tls
   host: longhorn.home.lab
   path: /
   pathType: Prefix
