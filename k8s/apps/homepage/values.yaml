@@ -24,7 +24,7 @@ config:
             description: TV Shows
             widget:
               type: sonarr
-              url: http://sonarr-main.media:8989
+              url: http://sonarr.media:8989
               key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
         - Radarr:
             icon: radarr.png
@@ -32,7 +32,7 @@ config:
             description: Movies
             widget:
               type: radarr
-              url: http://radarr-main.media:7878
+              url: http://radarr.media:7878
               key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
         - Prowlarr:
             icon: prowlarr.png
@@ -40,7 +40,7 @@ config:
             description: Indexer Manager
             widget:
               type: prowlarr
-              url: http://prowlarr-main.media:9696
+              url: http://prowlarr.media:9696
               key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
         - qBittorrent:
             icon: qbittorrent.png
@@ -58,7 +58,7 @@ config:
             description: Plex Monitoring
             widget:
               type: tautulli
-              url: http://tautulli-main.tautulli:8181
+              url: http://tautulli.tautulli:8181
               key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
         - Overseerr:
             icon: overseerr.png
