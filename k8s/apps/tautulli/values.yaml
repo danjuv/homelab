@@ -7,7 +7,6 @@ ingress:
       cert-manager.io/cluster-issuer: homelab-ca-issuer
     tls:
       - secretName: tautulli-homelab-tls
-        certificateIssuer: homelab-ca-issuer
         hosts:
           - tautulli.home.lab
     hosts:
