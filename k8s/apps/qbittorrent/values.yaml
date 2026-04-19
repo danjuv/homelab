@@ -33,6 +33,11 @@ ingress:
     className: nginx
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: qbittorrent-homelab-tls
+        hosts:
+          - qbt.home.lab
     hosts:
       - host: qbt.home.lab
         paths:

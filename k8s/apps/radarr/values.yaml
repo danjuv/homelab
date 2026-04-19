@@ -22,6 +22,11 @@ ingress:
     className: nginx
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: radarr-homelab-tls
+        hosts:
+          - radarr.home.lab
     hosts:
       - host: radarr.home.lab
         paths:

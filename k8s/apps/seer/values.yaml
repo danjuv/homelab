@@ -1,6 +1,12 @@
 ingress:
   enabled: true
   ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+  tls:
+    - secretName: overseerr-homelab-tls
+      hosts:
+        - overseerr.home.lab
   hosts:
     - host: overseerr.home.lab
       paths:

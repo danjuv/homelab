@@ -22,6 +22,11 @@ ingress:
     className: nginx
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: sonarr-homelab-tls
+        hosts:
+          - sonarr.home.lab
     hosts:
       - host: sonarr.home.lab
         paths:

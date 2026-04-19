@@ -20,6 +20,12 @@ service:
 ingress:
   main:
     className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: prowlarr-homelab-tls
+        hosts:
+          - prowlarr.home.lab
     hosts:
       - host: prowlarr.home.lab
         paths:

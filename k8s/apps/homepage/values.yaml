@@ -8,6 +8,12 @@ ingress:
   main:
     enabled: true
     ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: homepage-homelab-tls
+        hosts:
+          - home.lab
     hosts:
       - host: home.lab
         paths:
@@ -20,7 +26,7 @@ config:
     - Media:
         - Sonarr:
             icon: sonarr.png
-            href: http://sonarr.home.lab
+            href: https://sonarr.home.lab
             description: TV Shows
             widget:
               type: sonarr
@@ -28,7 +34,7 @@ config:
               key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
         - Radarr:
             icon: radarr.png
-            href: http://radarr.home.lab
+            href: https://radarr.home.lab
             description: Movies
             widget:
               type: radarr
@@ -36,7 +42,7 @@ config:
               key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
         - Prowlarr:
             icon: prowlarr.png
-            href: http://prowlarr.home.lab
+            href: https://prowlarr.home.lab
             description: Indexer Manager
             widget:
               type: prowlarr
@@ -44,7 +50,7 @@ config:
               key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
         - qBittorrent:
             icon: qbittorrent.png
-            href: http://qbt.home.lab
+            href: https://qbt.home.lab
             description: Downloads
             widget:
               type: qbittorrent
@@ -54,7 +60,7 @@ config:
     - Monitoring:
         - Tautulli:
             icon: tautulli.png
-            href: http://tautulli.home.lab
+            href: https://tautulli.home.lab
             description: Plex Monitoring
             widget:
               type: tautulli
@@ -62,7 +68,7 @@ config:
               key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
         - Overseerr:
             icon: overseerr.png
-            href: http://overseerr.home.lab
+            href: https://overseerr.home.lab
             description: Media Requests
             widget:
               type: seerr
@@ -71,11 +77,11 @@ config:
     - Infrastructure:
         - ArgoCD:
             icon: sh-argocd
-            href: http://argocd.home.lab
+            href: https://argocd.home.lab
             description: GitOps
         - Longhorn:
             icon: longhorn.png
-            href: http://longhorn.home.lab
+            href: https://longhorn.home.lab
             description: Storage
   widgets:
     - resources:
