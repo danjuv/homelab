@@ -64,18 +64,19 @@ config:
             icon: overseerr.png
             href: http://seer.home.lab
             description: Media Requests
+            widget:
+              type: seerr
+              url: http://seer-seerr-chart.media:80
+              key: "{{HOMEPAGE_VAR_SEERR_KEY}}"
     - Infrastructure:
         - ArgoCD:
-            icon: argocd.png
+            icon: sh-argocd
             href: http://argocd.home.lab
             description: GitOps
         - Longhorn:
             icon: longhorn.png
             href: http://longhorn.home.lab
             description: Storage
-            widget:
-              type: longhorn
-              url: http://longhorn-frontend.longhorn-system:80
   widgets:
     - resources:
         backend: kubernetes
@@ -94,12 +95,20 @@ config:
           cpu: true
           memory: true
           showLabel: true
+    - longhorn:
+        expanded: true
+        total: true
+        labels: true
+        nodes: true
     - search:
         provider: google
         target: _blank
   kubernetes:
     mode: cluster
   settings:
+    providers:
+      longhorn:
+        url: http://longhorn-frontend.longhorn-system:80
     title: Homelab
     headerStyle: clean
     layout:
