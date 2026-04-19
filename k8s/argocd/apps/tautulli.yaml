@@ -18,7 +18,7 @@ spec:
       path: k8s/apps/tautulli
   destination:
     server: https://kubernetes.default.svc
-    namespace: tautulli
+    namespace: media
   syncPolicy:
     syncOptions:
     - CreateNamespace=true  
