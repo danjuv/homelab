@@ -10,6 +10,7 @@ server:
     annotations:
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
     tls: true
 redisSecretInit:
   enabled: false
