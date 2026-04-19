@@ -1,0 +1,121 @@
+image:
+  repository: ghcr.io/gethomepage/homepage
+  tag: v1.2.0
+
+enableRbac: true
+
+ingress:
+  main:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - host: homepage.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+
+config:
+  bookmarks: []
+  services:
+    - Media:
+        - Sonarr:
+            icon: sonarr.png
+            href: http://sonarr-k8s.home.lab
+            description: TV Shows
+            widget:
+              type: sonarr
+              url: http://sonarr-main.media:8989
+              key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
+        - Radarr:
+            icon: radarr.png
+            href: http://radarr-k8s.home.lab
+            description: Movies
+            widget:
+              type: radarr
+              url: http://radarr-main.media:7878
+              key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
+        - Prowlarr:
+            icon: prowlarr.png
+            href: http://prowlarr-k8s.home.lab
+            description: Indexer Manager
+            widget:
+              type: prowlarr
+              url: http://prowlarr-main.media:9696
+              key: "{{HOMEPAGE_VAR_PROWLARR_KEY}}"
+        - qBittorrent:
+            icon: qbittorrent.png
+            href: http://qbittorrent-k8s.home.lab
+            description: Downloads
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent-main.media:8080
+              username: "{{HOMEPAGE_VAR_QBITTORRENT_USER}}"
+              password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
+    - Monitoring:
+        - Tautulli:
+            icon: tautulli.png
+            href: http://tautulli-k8s.home.lab
+            description: Plex Monitoring
+            widget:
+              type: tautulli
+              url: http://tautulli-main.tautulli:8181
+              key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
+        - Overseerr:
+            icon: overseerr.png
+            href: http://seer-k8s.home.lab
+            description: Media Requests
+    - Infrastructure:
+        - ArgoCD:
+            icon: argocd.png
+            href: http://argocd.home.lab
+            description: GitOps
+        - Longhorn:
+            icon: longhorn.png
+            href: http://longhorn.home.lab
+            description: Storage
+            widget:
+              type: longhorn
+              url: http://longhorn-frontend.longhorn-system:80
+  widgets:
+    - resources:
+        backend: kubernetes
+        expanded: true
+        cpu: true
+        memory: true
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: homelab
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - search:
+        provider: google
+        target: _blank
+  kubernetes:
+    mode: cluster
+  settings:
+    title: Homelab
+    headerStyle: clean
+    layout:
+      Media:
+        style: row
+        columns: 4
+      Monitoring:
+        style: row
+        columns: 2
+      Infrastructure:
+        style: row
+        columns: 2
+
+envFrom:
+  - secretRef:
+      name: homepage-secrets
+
+env:
+  HOMEPAGE_ALLOWED_HOSTS: homepage.home.lab
