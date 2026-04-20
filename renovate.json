@@ -18,10 +18,19 @@
       "customType": "regex",
       "fileMatch": ["k8s/apps/.+/values\\.yaml$"],
       "matchStrings": [
-        "repository:\\s*(?<depName>[^\\s]+)\\n\\s*tag:\\s*[\"']?(?<currentValue>[\\d]+\\.[\\d]+\\.[\\d]+(?:-[\\d]+)?)[\"']?"
+        "repository:\\s*(?<depName>\\S+)\\s*\\n\\s*tag:\\s*[\"']?(?<currentValue>\\d+\\.\\d+\\.\\d+(?:[.-]\\d+)?)[\"']?"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "semver"
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["k8s/apps/.+/values\\.yaml$"],
+      "matchStrings": [
+        "repository:\\s*(?<depName>\\S+)\\s*\\n\\s*tag:\\s*[\"']?\\S+[\"']?\\s*\\n\\s*digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "loose"
     }
   ],
   "packageRules": [
@@ -44,9 +53,10 @@
       "registryUrls": ["https://oci.trueforge.org"]
     },
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["/^lscr\\.io\\/linuxserver\\//"],
-      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/"
+      "matchManagers": ["argocd"],
+      "matchDepNames": ["quay.io/jetstack/charts/cert-manager/cert-manager"],
+      "overridePackageName": "jetstack/charts/cert-manager",
+      "registryUrls": ["https://quay.io"]
     }
   ]
 }
