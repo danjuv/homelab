@@ -64,7 +64,7 @@ config:
             description: Plex Monitoring
             widget:
               type: tautulli
-              url: http://tautulli.tautulli:8181
+              url: http://tautulli.media:8181
               key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
         - Overseerr:
             icon: overseerr.png
