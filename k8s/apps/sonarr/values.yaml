@@ -1,13 +1,17 @@
 controllers:
   main:
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
     containers:
       main:
         image:
-          repository: lscr.io/linuxserver/sonarr
-          tag: 4.0.17
+          repository: ghcr.io/home-operations/sonarr
+          tag: 4.0.17.2953
+          digest: sha256:1b263b2295b95aaecfcc29858d5a9831f397e29d119a83c0c79a2b4c1a19df7f
         env:
-          PUID: "1000"
-          PGID: "1000"
           TZ: "Australia/Sydney"
         probes:
           liveness:
