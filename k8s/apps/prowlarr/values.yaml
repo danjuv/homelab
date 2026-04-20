@@ -53,6 +53,8 @@ ingress:
   main:
     className: nginx
     annotations:
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
       cert-manager.io/cluster-issuer: homelab-ca-issuer
     tls:
       - secretName: prowlarr-homelab-tls
