@@ -16,18 +16,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["k8s/apps/.+/values\\.yaml$"],
+      "managerFilePatterns": ["/k8s/apps/.+/values\\.yaml$/"],
       "matchStrings": [
-        "repository:\\s*(?<depName>\\S+)\\s*\\n\\s*tag:\\s*[\"']?(?<currentValue>\\d+\\.\\d+\\.\\d+(?:[.-]\\d+)?)[\"']?"
-      ],
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "loose"
-    },
-    {
-      "customType": "regex",
-      "fileMatch": ["k8s/apps/.+/values\\.yaml$"],
-      "matchStrings": [
-        "repository:\\s*(?<depName>\\S+)\\s*\\n\\s*tag:\\s*[\"']?\\S+[\"']?\\s*\\n\\s*digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
+        "repository:\\s*(?<depName>\\S+)\\s*\\n\\s*tag:\\s*[\"']?(?<currentValue>\\d+\\.\\d+\\.\\d+(?:[.-]\\d+)?)[\"']?(?:\\s*\\n\\s*digest:\\s*(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "loose"
