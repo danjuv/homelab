@@ -14,5 +14,6 @@
     pkgs.python3
     pkgs.uv
     pkgs.helm-docs
+    pkgs.argo-rollouts
   ];
 }
