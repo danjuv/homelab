@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rollout-demo
+  namespace: rollout-demo
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: rollout-demo-homelab-tls
+      hosts:
+        - rollout-demo.home.lab
+  rules:
+    - host: rollout-demo.home.lab
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rollout-demo-stable
+                port:
+                  number: 80

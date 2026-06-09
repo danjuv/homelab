@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rollout-demo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:danjuv/homelab.git
+    targetRevision: HEAD
+    path: k8s/apps/rollout-demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rollout-demo
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true

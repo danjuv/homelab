@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rollout-demo-stable
+  namespace: rollout-demo
+spec:
+  selector:
+    app: rollout-demo
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rollout-demo-canary
+  namespace: rollout-demo
+spec:
+  selector:
+    app: rollout-demo
+  ports:
+    - port: 80
+      targetPort: 8080
