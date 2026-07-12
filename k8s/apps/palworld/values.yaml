@@ -1,0 +1,40 @@
+config:
+  env:
+    TZ: "Australia/Sydney"
+    SERVER_NAME: "Pokemon"
+    SERVER_DESCRIPTION: "Gotta catch em all"
+    MAX_PLAYERS: "10"
+    ALWAYS_UPDATE_ON_START: "true"
+    MULTITHREAD_ENABLED: "true"
+    COMMUNITY_SERVER: "false"
+    BACKUP_ENABLED: "true"
+    BACKUP_CRON_EXPRESSION: "0 * * * *"
+    BACKUP_RETENTION_POLICY: "true"
+    BACKUP_RETENTION_AMOUNT_TO_KEEP: "168"
+    SERVER_SETTINGS_MODE: "auto"
+    PUBLIC_IP: ""
+    PUBLIC_PORT: "8211"
+  secretEnv:
+    create: false
+    name: palworld-credentials
+
+service:
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: "192.168.50.202"
+
+resources:
+  requests:
+    cpu: "2"
+    memory: "8Gi"
+  limits:
+    cpu: "4"
+    memory: "14Gi"
+
+persistence:
+  enabled: true
+  size: 30Gi
+  storageClass: longhorn
+
+rcon:
+  enabled: true
+  expose: false

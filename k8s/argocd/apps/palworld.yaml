@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: palworld
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: palworld
+      repoURL: https://korax-dev.github.io/helm-charts
+      targetRevision: 0.2.3
+      helm:
+        releaseName: palworld
+        valueFiles:
+          - $values/k8s/apps/palworld/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/palworld
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: games
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
