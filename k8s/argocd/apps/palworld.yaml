@@ -7,8 +7,8 @@ spec:
   project: default
   sources:
     - chart: palworld
-      repoURL: https://korax-dev.github.io/helm-charts
-      targetRevision: 0.2.3
+      repoURL: https://twinki14.github.io/palworld-server-chart
+      targetRevision: 2.1.0
       helm:
         releaseName: palworld
         valueFiles:
