@@ -10,7 +10,7 @@ spec:
   sources:
     - chart: argo-rollouts
       repoURL: https://argoproj.github.io/argo-helm
-      targetRevision: 2.41.0
+      targetRevision: 2.41.1
       helm:
         valueFiles:
           - $values/k8s/admin/argo-rollouts/values.yaml
