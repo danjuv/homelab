@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kargo
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: kargo
+    server: https://kubernetes.default.svc
+  sources:
+    - repoURL: ghcr.io/akuity/kargo-charts
+      chart: kargo
+      targetRevision: v1.10.9
+      helm:
+        valueFiles:
+          - $values/kargo/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/admin/kargo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
