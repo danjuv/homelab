@@ -8,7 +8,7 @@ spec:
   sources:
     - chart: palworld
       repoURL: https://twinki14.github.io/palworld-server-chart
-      targetRevision: 2.1.0
+      targetRevision: 2.7.1
       helm:
         releaseName: palworld
         valueFiles:
