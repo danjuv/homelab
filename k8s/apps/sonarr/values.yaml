@@ -9,8 +9,8 @@ controllers:
       main:
         image:
           repository: ghcr.io/home-operations/sonarr
-          tag: 4.0.18.2978
-          digest: sha256:d72df5f3911b1f753156dd87acfaa1af75aa9405ead5fa7dc5be2d7043f00a8a
+          tag: 4.0.19.2995
+          digest: sha256:2ab9f07cbe6d54b511cb6963e4c4e38100e59f37db81fa8949cc594c25fa5927
         env:
           TZ: "Australia/Sydney"
         probes:
