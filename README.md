@@ -30,6 +30,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Seer | Media request management |
 | Tautulli | Plex/media server monitoring |
 | Homepage | Dashboard |
+| Hermes | Private AI agent API ([setup](k8s/apps/hermes/README.md)) |
 
 ## Structure
 

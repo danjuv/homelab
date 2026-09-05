@@ -1,0 +1,105 @@
+fullnameOverride: hermes
+
+image:
+  repository: nousresearch/hermes-agent
+  # This chart appends :tag and has no separate digest setting.
+  tag: v2026.8.31@sha256:64923faeae267792bf9bf87fe3b4c4869e35004e360c7df01730ad801b74d524
+
+# Kubernetes replaces the image's root-only s6 supervisor.
+command:
+  - /opt/hermes/.venv/bin/hermes
+args:
+  - gateway
+  - run
+  - --no-supervise
+  - --external-supervisor
+workingDir: /opt/data
+
+replicaCount: 1
+strategy:
+  type: Recreate
+
+config:
+  values:
+    model:
+      provider: openrouter
+      default: anthropic/claude-opus-4.6
+      base_url: https://openrouter.ai/api/v1
+    terminal:
+      cwd: /opt/data
+
+secrets:
+  existingSecret: hermes-secrets
+
+# Increment with SealedSecret changes to reload credentials through GitOps.
+podAnnotations:
+  hermes.home.lab/credentials-revision: "1"
+
+apiServer:
+  enabled: true
+  host: 0.0.0.0
+  port: 8642
+  modelName: hermes-agent
+
+service:
+  enabled: true
+  type: ClusterIP
+
+ingress:
+  enabled: false
+
+# Access is through kubectl port-forward, not other pods or ingress.
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+  ingress: []
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+
+serviceAccount:
+  automountServiceAccountToken: false
+rbac:
+  create: false
+
+podSecurityContext:
+  runAsUser: 10000
+  runAsGroup: 10000
+  fsGroup: 10000
+  runAsNonRoot: true
+
+probes:
+  startup:
+    httpGet:
+      path: /health
+      port: api-server
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 60
+  readiness:
+    httpGet:
+      path: /health
+      port: api-server
+    periodSeconds: 10
+    timeoutSeconds: 3
+  liveness:
+    httpGet:
+      path: /health
+      port: api-server
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi

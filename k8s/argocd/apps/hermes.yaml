@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hermes
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/ultraworkers/hermes-agent-helm-chart.git
+      targetRevision: e3b685d4d0288668a37216435742cd0a659ebc6c
+      path: .
+      helm:
+        releaseName: hermes
+        skipCrds: true
+        valueFiles:
+          - $values/k8s/apps/hermes/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/hermes
+      directory:
+        include: sealedsecret.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hermes
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
