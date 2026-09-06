@@ -1,0 +1,65 @@
+name: Validate Kubernetes
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Validation baseline: this version should match the cluster.
+  KUBERNETES_VERSION: '1.35.0'
+
+jobs:
+  validate:
+    name: Validate Kubernetes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Install Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
+        with:
+          version: 'v3.20.2'
+
+      - name: Install Kustomize and kubeconform
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+
+          kustomize_url='https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v5.8.1'
+          curl -fsSL --retry 3 "$kustomize_url/kustomize_v5.8.1_linux_amd64.tar.gz" -o kustomize_v5.8.1_linux_amd64.tar.gz
+          curl -fsSL --retry 3 "$kustomize_url/checksums.txt" -o kustomize-checksums.txt
+          sha256sum --check --ignore-missing kustomize-checksums.txt
+          tar -xzf kustomize_v5.8.1_linux_amd64.tar.gz -C "$RUNNER_TEMP/bin" kustomize
+
+          kubeconform_url='https://github.com/yannh/kubeconform/releases/download/v0.7.0'
+          curl -fsSL --retry 3 "$kubeconform_url/kubeconform-linux-amd64.tar.gz" -o kubeconform-linux-amd64.tar.gz
+          curl -fsSL --retry 3 "$kubeconform_url/CHECKSUMS" -o kubeconform-checksums.txt
+          sha256sum --check --ignore-missing kubeconform-checksums.txt
+          tar -xzf kubeconform-linux-amd64.tar.gz -C "$RUNNER_TEMP/bin" kubeconform
+
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install 'PyYAML==6.0.3'
+
+      - name: Validate Kubernetes
+        run: |
+          "$RUNNER_TEMP/venv/bin/python" tools/validate_k8s.py
