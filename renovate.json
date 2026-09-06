@@ -48,6 +48,12 @@
       "matchDepNames": ["quay.io/jetstack/charts/cert-manager/cert-manager"],
       "overridePackageName": "jetstack/charts/cert-manager",
       "registryUrls": ["https://quay.io"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     }
   ]
 }
