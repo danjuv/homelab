@@ -118,6 +118,9 @@ extraContainers:
         value: /opt/data
       - name: HOME
         value: /opt/data/home
+      # Containers have separate PID namespaces; detect the gateway over HTTP.
+      - name: GATEWAY_HEALTH_URL
+        value: http://127.0.0.1:8642
       - name: HERMES_DASHBOARD_BASIC_AUTH_USERNAME
         value: admin
       - name: HERMES_DASHBOARD_BASIC_AUTH_PASSWORD
