@@ -27,13 +27,18 @@ config:
       base_url: https://openrouter.ai/api/v1
     terminal:
       cwd: /opt/data
+    dashboard:
+      public_url: https://hermes.home.lab
+      # k3s uses this pod CIDR by default; nginx peers are restricted below.
+      trusted_proxies:
+        - 10.42.0.0/16
 
 secrets:
   existingSecret: hermes-secrets
 
 # Increment with SealedSecret changes to reload credentials through GitOps.
 podAnnotations:
-  hermes.home.lab/credentials-revision: "1"
+  hermes.home.lab/credentials-revision: "2"
 
 apiServer:
   enabled: true
@@ -44,16 +49,139 @@ apiServer:
 service:
   enabled: true
   type: ClusterIP
+  ports:
+    - name: api-server
+      port: 8642
+      targetPort: 8642
+      containerPort: 8642
+    - name: dashboard
+      port: 9119
+      targetPort: 9119
+      containerPort: 9119
 
 ingress:
-  enabled: false
+  enabled: true
+  className: nginx
+  servicePortNumber: 9119
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+  hosts:
+    - host: hermes.home.lab
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: hermes-homelab-tls
+      hosts:
+        - hermes.home.lab
 
-# Access is through kubectl port-forward, not other pods or ingress.
+# nginx can reach only the dashboard. The API remains port-forward-only.
 networkPolicy:
   enabled: true
   policyTypes:
     - Ingress
-  ingress: []
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+              app.kubernetes.io/component: controller
+      ports:
+        - protocol: TCP
+          port: 9119
+
+# The dashboard/remote Desktop backend shares the gateway's persistent state.
+# Keep this image aligned with image.repository/image.tag above.
+extraContainers:
+  - name: dashboard
+    image: nousresearch/hermes-agent:v2026.8.31@sha256:64923faeae267792bf9bf87fe3b4c4869e35004e360c7df01730ad801b74d524
+    imagePullPolicy: IfNotPresent
+    command:
+      - /opt/hermes/.venv/bin/hermes
+    args:
+      - dashboard
+      - --host
+      - 0.0.0.0
+      - --port
+      - "9119"
+      - --no-open
+      - --skip-build
+    workingDir: /opt/data
+    env:
+      - name: HERMES_HOME
+        value: /opt/data
+      - name: HOME
+        value: /opt/data/home
+      - name: HERMES_DASHBOARD_BASIC_AUTH_USERNAME
+        value: admin
+      - name: HERMES_DASHBOARD_BASIC_AUTH_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: hermes-dashboard-auth
+            key: HERMES_DASHBOARD_BASIC_AUTH_PASSWORD
+      - name: HERMES_DASHBOARD_BASIC_AUTH_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: hermes-dashboard-auth
+            key: HERMES_DASHBOARD_BASIC_AUTH_SECRET
+    envFrom:
+      - secretRef:
+          name: hermes-secrets
+    startupProbe:
+      httpGet:
+        path: /api/status
+        port: 9119
+        httpHeaders:
+          - name: Host
+            value: hermes.home.lab
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 60
+    readinessProbe:
+      httpGet:
+        path: /api/status
+        port: 9119
+        httpHeaders:
+          - name: Host
+            value: hermes.home.lab
+      periodSeconds: 10
+      timeoutSeconds: 3
+    livenessProbe:
+      httpGet:
+        path: /api/status
+        port: 9119
+        httpHeaders:
+          - name: Host
+            value: hermes.home.lab
+      periodSeconds: 30
+      timeoutSeconds: 5
+      failureThreshold: 3
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: "2"
+        memory: 2Gi
+    volumeMounts:
+      - name: data
+        mountPath: /opt/data
+      - name: tmp
+        mountPath: /tmp
 
 persistence:
   enabled: true
