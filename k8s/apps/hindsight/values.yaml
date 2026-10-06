@@ -1,0 +1,90 @@
+fullnameOverride: hindsight
+
+existingSecret: hindsight-secrets
+
+podAnnotations:
+  hindsight.home.lab/credentials-revision: "1"
+
+api:
+  env:
+    HINDSIGHT_API_LLM_PROVIDER: openrouter
+    HINDSIGHT_API_LLM_MODEL: qwen/qwen3.5-9b
+    HINDSIGHT_API_TENANT_EXTENSION: hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension
+    HINDSIGHT_API_WORKER_ID: hindsight
+    HINDSIGHT_API_DB_POOL_MIN_SIZE: "1"
+    HINDSIGHT_API_DB_POOL_MAX_SIZE: "10"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: 8888
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 60
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8888
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 60
+  persistence:
+    modelCache:
+      enabled: true
+      size: 5Gi
+      storageClass: longhorn
+      accessModes:
+        - ReadWriteOnce
+      annotations:
+        argocd.argoproj.io/sync-options: Prune=false,Delete=false
+  extraVolumeMounts:
+    - name: dshm
+      mountPath: /dev/shm
+  extraVolumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 1Gi
+
+postgresql:
+  enabled: true
+  image:
+    repository: pgvector/pgvector
+    tag: 0.8.7-pg17
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: longhorn
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+  hosts:
+    - host: hindsight.home.lab
+      paths:
+        - path: /
+          pathType: Prefix
+          service: controlPlane
+        - path: /v1
+          pathType: Prefix
+          service: api
+        - path: /mcp
+          pathType: Prefix
+          service: api
+  tls:
+    - secretName: hindsight-homelab-tls
+      hosts:
+        - hindsight.home.lab

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hindsight
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: hindsight
+      repoURL: oci://ghcr.io/vectorize-io/charts/hindsight
+      targetRevision: 0.10.2
+      helm:
+        releaseName: hindsight
+        valueFiles:
+          - $values/k8s/apps/hindsight/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/hindsight
+      directory:
+        include: sealedsecret.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hindsight
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true

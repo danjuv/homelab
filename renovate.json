@@ -50,6 +50,12 @@
       "registryUrls": ["https://quay.io"]
     },
     {
+      "matchManagers": ["argocd"],
+      "matchDepNames": ["ghcr.io/vectorize-io/charts/hindsight/hindsight"],
+      "overridePackageName": "vectorize-io/charts/hindsight",
+      "registryUrls": ["https://ghcr.io"]
+    },
+    {
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true,
       "automergeType": "pr",
