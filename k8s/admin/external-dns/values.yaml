@@ -8,8 +8,6 @@ env:
       secretKeyRef:
         name: external-dns-pihole
         key: password
-extraArgs:
-  - --pihole-api-version=6
 policy: sync
 sources:
   - ingress
