@@ -9,6 +9,8 @@ api:
   env:
     HINDSIGHT_API_LLM_PROVIDER: openrouter
     HINDSIGHT_API_LLM_MODEL: qwen/qwen3.5-9b
+    HINDSIGHT_API_LLM_EXTRA_BODY: '{"reasoning":{"enabled":false}}'
+    HINDSIGHT_API_RETAIN_MAX_COMPLETION_TOKENS: "32000"
     HINDSIGHT_API_TENANT_EXTENSION: hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension
     HINDSIGHT_API_WORKER_ID: hindsight
     HINDSIGHT_API_DB_POOL_MIN_SIZE: "1"
