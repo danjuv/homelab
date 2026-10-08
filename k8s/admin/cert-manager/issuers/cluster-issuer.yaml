@@ -14,9 +14,12 @@ spec:
   isCA: true
   commonName: homelab-ca
   secretName: homelab-ca-secret
+  duration: 87600h # 10y; default is 90d
+  renewBefore: 720h
   privateKey:
     algorithm: ECDSA
     size: 256
+    rotationPolicy: Never # keep key across renewals so devices keep trusting it
   issuerRef:
     name: selfsigned-issuer
     kind: ClusterIssuer
