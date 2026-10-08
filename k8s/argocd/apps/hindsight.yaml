@@ -8,7 +8,7 @@ spec:
   sources:
     - chart: hindsight
       repoURL: oci://ghcr.io/vectorize-io/charts/hindsight
-      targetRevision: 0.10.2
+      targetRevision: 0.10.3
       helm:
         releaseName: hindsight
         valueFiles:
