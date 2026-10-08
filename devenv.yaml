@@ -3,8 +3,8 @@ inputs:
   nixpkgs:
     url: github:cachix/devenv-nixpkgs/rolling
 
-# If you're using non-OSS software, you can set allowUnfree to true.
-# allowUnfree: true
+# Required for claude-code.
+allowUnfree: true
 
 # If you're not willing to allow unsupported packages:
 # allowUnsupportedSystem: false
