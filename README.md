@@ -40,4 +40,17 @@ k8s/
   argocd/apps/    # ArgoCD Application manifests (one per app)
   admin/          # Helm values and config for cluster infrastructure
   apps/           # Helm values and config for workloads
+terraform/
+  home-assistant/ # Home Assistant application config (applied by hand)
 ```
+
+## Terraform
+
+ArgoCD deploys workloads; it does not run Terraform. `terraform/` holds application-level
+configuration that lives inside an app rather than in Kubernetes, applied by hand with
+`terraform plan`/`apply`. Credentials come from `TF_VAR_*` environment variables and are never
+committed. `terraform fmt`, `validate` and `test` run without credentials.
+
+| Root | Configures |
+|------|------------|
+| [`terraform/home-assistant`](terraform/home-assistant/README.md) | Home Assistant labels, floors, areas and helpers |

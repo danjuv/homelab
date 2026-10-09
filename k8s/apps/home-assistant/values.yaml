@@ -1,3 +1,5 @@
+# Deployment only. Application config (areas, labels, helpers, ...) is managed
+# through the Home Assistant API by terraform/home-assistant.
 defaultPodOptions:
   # Bootstrap files and reverse-proxy settings are seeded below; no host
   # networking, privileged mode, or device access.

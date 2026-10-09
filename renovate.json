@@ -60,6 +60,11 @@
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
+    },
+    {
+      "description": "Terraform is applied by hand; review provider bumps (and the lock file) before merging.",
+      "matchManagers": ["terraform"],
+      "automerge": false
     }
   ]
 }

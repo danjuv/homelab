@@ -1,0 +1,14 @@
+# Local state and provider cache
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Secret variable files (prefer TF_VAR_home_assistant_token)
+*.secret.tfvars
+secret.auto.tfvars
+
+# Homelab CA certificate exported for SSL_CERT_FILE
+*.crt
