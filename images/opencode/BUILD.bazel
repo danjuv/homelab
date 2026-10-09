@@ -9,7 +9,6 @@ load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 #   bazel run //images/opencode:base.lock     refresh apko.lock.json after editing apko.yaml
 #   bazel run //images/opencode:load          load as opencode:dev into local docker
 #   bazel run //images/opencode:push -- --tag <OPENCODE_VERSION>
-#   bazel run //images/opencode:init_push -- --tag <OPENCODE_VERSION>
 
 apko_image(
     name = "base",
@@ -64,35 +63,4 @@ oci_push(
     name = "push",
     image = ":image",
     repository = "ghcr.io/danjuv/opencode",
-)
-
-# kubeopencode "agentImage": an init container that runs the image's default
-# entrypoint to copy the OpenCode binary to $TOOLS_DIR (a shared volume). Same
-# layers as :image, so it costs no extra pull and always matches its version.
-oci_image(
-    name = "init_image",
-    base = ":base",
-    entrypoint = [
-        "/bin/sh",
-        "-c",
-        'set -eu; dir="${TOOLS_DIR:-/tools}"; mkdir -p "$dir"; cp /usr/local/bin/opencode "$dir/opencode"; chmod 0755 "$dir/opencode"; echo "[opencode-init] installed $("$dir/opencode" --version) to $dir/opencode"',
-    ],
-    labels = {
-        "org.opencontainers.image.source": "https://github.com/danjuv/homelab",
-        "org.opencontainers.image.title": "opencode-init",
-    },
-    tars = [":bin_layer"],
-    user = "10000:10000",
-)
-
-oci_load(
-    name = "init_load",
-    image = ":init_image",
-    repo_tags = ["opencode-init:dev"],
-)
-
-oci_push(
-    name = "init_push",
-    image = ":init_image",
-    repository = "ghcr.io/danjuv/opencode-init",
 )

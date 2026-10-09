@@ -1,4 +1,4 @@
-name: Build OpenCode images
+name: Build OpenCode image
 
 on:
   push:
@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build OpenCode images
+    name: Build OpenCode image
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -52,8 +52,8 @@ jobs:
           git diff --exit-code -- images/opencode/apko.lock.json \
             || { echo "::warning::apko.lock.json is stale (new Wolfi packages); building with the committed lock"; git checkout -- images/opencode/apko.lock.json; }
 
-      - name: Build images
-        run: bazel build //images/opencode:image //images/opencode:init_image
+      - name: Build image
+        run: bazel build //images/opencode:image
 
       - name: Read OpenCode version
         id: version
@@ -71,11 +71,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push images
+      - name: Push image
         if: github.event_name != 'pull_request'
         run: |
-          for target in push init_push; do
-            bazel run "//images/opencode:$target" -- \
-              --tag "${{ steps.version.outputs.opencode }}" \
-              --tag "${{ steps.version.outputs.opencode }}-${{ steps.version.outputs.short_sha }}"
-          done
+          bazel run //images/opencode:push -- \
+            --tag "${{ steps.version.outputs.opencode }}" \
+            --tag "${{ steps.version.outputs.opencode }}-${{ steps.version.outputs.short_sha }}"

@@ -5,8 +5,7 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  # Plain manifests: AgentTemplate, RBAC, agent files, SealedSecret.
-  # The CRDs come from the kubeopencode app.
+  # Plain manifests: agent ServiceAccount/RBAC, agent files, SealedSecret.
   source:
     repoURL: git@github.com:danjuv/homelab.git
     targetRevision: HEAD
@@ -21,10 +20,3 @@ spec:
       prune: true
       selfHeal: true
       enabled: true
-    # Retry while the kubeopencode CRDs are still being installed.
-    retry:
-      limit: 5
-      backoff:
-        duration: 30s
-        factor: 2
-        maxDuration: 5m
