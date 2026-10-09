@@ -17,3 +17,6 @@ devenv.local.yaml
 
 # Kometa secret properties (never commit plaintext secrets)
 secret.properties
+
+# Python bytecode
+__pycache__/
