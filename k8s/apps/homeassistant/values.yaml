@@ -23,14 +23,18 @@ home-assistant:
 
   configuration:
     enabled: true
-    # Written to /config/configuration.yaml only if the file is missing. All
-    # other YAML (automations, scripts, scenes...) lives in config/packages/;
-    # after a sync, apply it with Developer tools > YAML > Reload all.
+    # Written to /config/configuration.yaml only if the file is missing (to
+    # apply a change here, delete that file and restart the pod). All other
+    # YAML lives in config/packages/ and is reloaded automatically after a
+    # sync by config/packages/reload.yaml.
     templateConfig: |-
       default_config:
 
       homeassistant:
         packages: !include_dir_named gitops/packages
+        # Lets the Folder Watcher integration watch the packages directory.
+        allowlist_external_dirs:
+          - /config/gitops
 
   additionalVolumes:
     # Mounted as a directory (no subPath) so updates reach the running pod.

@@ -1,0 +1,18 @@
+# Reload all YAML when Argo CD syncs a change to config/packages/.
+# Kubernetes updates the mounted ConfigMap by atomically renaming ..data_tmp to
+# ..data once the new files are in place; the Folder Watcher integration
+# (set up once in the UI on /config/gitops/packages) reports that as a
+# "moved" event. reload_all refuses to load an invalid configuration.
+automation:
+  - id: gitops_reload_packages
+    alias: Reload YAML after GitOps sync
+    description: Reloads Home Assistant's YAML when config/packages/ changes in git
+    mode: single
+    triggers:
+      - trigger: event
+        event_type: folder_watcher
+        event_data:
+          event_type: moved
+          dest_file: ..data
+    actions:
+      - action: homeassistant.reload_all
