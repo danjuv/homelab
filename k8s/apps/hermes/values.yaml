@@ -32,7 +32,7 @@ config:
       # k3s uses this pod CIDR by default; nginx peers are restricted below.
       trusted_proxies:
         - 10.42.0.0/16
-    # Argo Workflows (k8s/apps/opencode/workflowtemplate.yaml hermes-notify)
+    # Argo Workflows (k8s/apps/opencode/hermes-notify.yaml)
     # POST finished-task messages here; delivered to Telegram as-is, no agent
     # turn. Signed with WEBHOOK_SECRET (hermes-webhook.sealed.yaml).
     platforms:

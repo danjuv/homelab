@@ -1,6 +1,6 @@
 ---
-name: opencode
-description: Run background coding tasks on the homelab repo
+name: opencode-tasks
+description: Run background OpenCode tasks on the homelab repo (Argo Workflows)
 version: 1.0.0
 platforms: [linux]
 metadata:
