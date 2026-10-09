@@ -1,0 +1,46 @@
+# Selects only the mcp-arr pods; other apps in the media namespace are
+# unaffected. The MCP endpoint has no auth, so only the ingress controller
+# (mcp-arr.home.lab, tailnet only) and the in-cluster MCP clients may connect.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-arr
+  namespace: media
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: mcp-arr
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+              app.kubernetes.io/component: controller
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: open-webui
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: open-webui
+              app.kubernetes.io/component: open-webui
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-agent
+        # OpenCode agent pods (k8s/apps/opencode/workflowtemplate.yaml).
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: opencode
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: opencode-task
+      ports:
+        - protocol: TCP
+          port: 3000

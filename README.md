@@ -30,6 +30,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | qBittorrent | Torrent client | [qbt.home.lab](https://qbt.home.lab) |
 | Seer | Media request management | [overseerr.home.lab](https://overseerr.home.lab) |
 | Tautulli | Plex/media server monitoring | [tautulli.home.lab](https://tautulli.home.lab) |
+| mcp-arr | MCP server for *arr media suite (Sonarr, Radarr, Prowlarr) | [mcp-arr.home.lab](https://mcp-arr.home.lab) |
 | Homepage | Dashboard | [home.lab](https://home.lab) |
 | Home Assistant | Home automation | [homeassistant.home.lab](https://homeassistant.home.lab) |
 
