@@ -1,0 +1,66 @@
+load("@aspect_bazel_lib//lib:expand_template.bzl", "expand_template")
+load("@rules_apko//apko:defs.bzl", "apko_image")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+# OpenCode agent image: Wolfi base (apko.yaml, locked in apko.lock.json) plus the
+# official OpenCode release binary and tools Wolfi doesn't package.
+#
+#   bazel run //images/opencode:base.lock     refresh apko.lock.json after editing apko.yaml
+#   bazel run //images/opencode:load          load as opencode:dev into local docker
+#   bazel run //images/opencode:push -- --tag <OPENCODE_VERSION>
+
+apko_image(
+    name = "base",
+    architecture = "amd64",
+    config = "apko.yaml",
+    contents = "@opencode_base//:contents",
+    tag = "opencode-base:latest",
+)
+
+pkg_tar(
+    name = "bin_layer",
+    srcs = [
+        "@kubeconform_bin//:kubeconform",
+        "@opencode_bin//:opencode",
+    ],
+    mode = "0755",
+    package_dir = "/usr/local/bin",
+)
+
+oci_image(
+    name = "image",
+    base = ":base",
+    cmd = [
+        "opencode",
+        "web",
+        "--hostname",
+        "0.0.0.0",
+        "--port",
+        "4096",
+    ],
+    entrypoint = [
+        "/usr/bin/tini",
+        "--",
+    ],
+    exposed_ports = ["4096/tcp"],
+    labels = {
+        "org.opencontainers.image.source": "https://github.com/danjuv/homelab",
+        "org.opencontainers.image.title": "opencode",
+    },
+    tars = [":bin_layer"],
+    user = "10000:10000",
+    workdir = "/workspace",
+)
+
+oci_load(
+    name = "load",
+    image = ":image",
+    repo_tags = ["opencode:dev"],
+)
+
+oci_push(
+    name = "push",
+    image = ":image",
+    repository = "ghcr.io/danjuv/opencode",
+)

@@ -11,7 +11,6 @@
     pkgs.argocd
     pkgs.k9s
     pkgs.bazelisk
-    pkgs.opencode
     (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
     pkgs.uv
     pkgs.helm-docs

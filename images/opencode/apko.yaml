@@ -1,0 +1,64 @@
+# Base for the OpenCode agent image: Wolfi (glibc, rolling) packages.
+# After editing, refresh the lock: bazel run //images/opencode:base.lock
+contents:
+  keyring:
+    - https://packages.wolfi.dev/os/wolfi-signing.rsa.pub
+  repositories:
+    - https://packages.wolfi.dev/os
+  packages:
+    - wolfi-baselayout
+    - ca-certificates-bundle
+    - glibc
+    - libgcc
+    - libstdc++
+    - busybox
+    - coreutils
+    - bash
+    - tini
+    - curl
+    - git
+    - openssh-client
+    - gh
+    - jq
+    - ripgrep
+    - python-3.14
+    - uv
+    - go-1.27
+    - helm-4
+    - kustomize
+    - sealed-secrets-kubeseal
+
+accounts:
+  groups:
+    - groupname: opencode
+      gid: 10000
+  users:
+    - username: opencode
+      uid: 10000
+      gid: 10000
+      homedir: /workspace/.home
+      shell: /bin/bash
+  run-as: "10000"
+
+paths:
+  - path: /workspace
+    type: directory
+    uid: 10000
+    gid: 10000
+    permissions: 0o755
+  - path: /workspace/.home
+    type: directory
+    uid: 10000
+    gid: 10000
+    permissions: 0o755
+
+work-dir: /workspace
+
+environment:
+  HOME: /workspace/.home
+  GOPATH: /workspace/.home/go
+  UV_CACHE_DIR: /workspace/.home/.cache/uv
+  PATH: /workspace/.home/go/bin:/workspace/.home/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+archs:
+  - x86_64
