@@ -11,6 +11,140 @@ views:
     strategy:
       type: home-overview
 
+  - title: Lights
+    path: lights
+    icon: mdi:lightbulb-group
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Entertainment room
+            icon: mdi:sofa
+          - type: button
+            name: LEDs only
+            icon: mdi:led-strip-variant
+            show_state: false
+            grid_options:
+              columns: 3
+            tap_action:
+              action: perform-action
+              perform_action: scene.turn_on
+              target:
+                entity_id: scene.leds_only
+          - type: button
+            name: Lights only
+            icon: mdi:ceiling-light
+            show_state: false
+            grid_options:
+              columns: 3
+            tap_action:
+              action: perform-action
+              perform_action: scene.turn_on
+              target:
+                entity_id: scene.entertainment_room_lights_only
+          - type: button
+            name: All lights
+            icon: mdi:lightbulb-group
+            show_state: false
+            grid_options:
+              columns: 3
+            tap_action:
+              action: perform-action
+              perform_action: scene.turn_on
+              target:
+                entity_id: scene.entertainment_room_all_lights
+          - type: button
+            name: All off
+            icon: mdi:lightbulb-group-off
+            show_state: false
+            grid_options:
+              columns: 3
+            tap_action:
+              action: perform-action
+              perform_action: scene.turn_on
+              target:
+                entity_id: scene.lights_off
+          - type: tile
+            entity: light.tv_2
+            name: TV light
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.stairs_light_2
+            name: Stairs
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.tv_led_2_2
+            name: TV LED left
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.tv_led_1
+            name: TV LED right
+            features_position: bottom
+            features:
+              - type: light-brightness
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Rooms
+            icon: mdi:home
+          - type: tile
+            entity: light.danjubedroom
+            name: Danju's bedroom
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.signify_netherlands_b_v_lwa028
+            name: Entrance
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.pantry
+            name: Kitchen (pantry)
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.office_light
+            name: Office
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.signify_netherlands_b_v_lwa028_2
+            name: Office wardrobe
+            features_position: bottom
+            features:
+              - type: light-brightness
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Garage
+            icon: mdi:garage
+          - type: tile
+            entity: light.garage_light_1_2
+            name: Garage 1
+            features_position: bottom
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.garage_light_2_2
+            name: Garage 2
+            features_position: bottom
+            features:
+              - type: light-brightness
+
   - title: Aircon
     path: aircon
     icon: mdi:air-conditioner
