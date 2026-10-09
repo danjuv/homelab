@@ -1,0 +1,9 @@
+apiVersion: v2
+name: homeassistant
+description: Home Assistant with git-managed configuration packages
+type: application
+version: 0.1.0
+dependencies:
+  - name: home-assistant
+    version: 0.3.84
+    repository: https://pajikos.github.io/home-assistant-helm-chart/

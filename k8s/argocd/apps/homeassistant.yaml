@@ -5,18 +5,13 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  sources:
-    - chart: home-assistant
-      repoURL: https://pajikos.github.io/home-assistant-helm-chart/
-      targetRevision: 0.3.84
-      helm:
-        releaseName: homeassistant
-        valueFiles:
-          - $values/k8s/apps/homeassistant/values.yaml
-    - repoURL: git@github.com:danjuv/homelab.git
-      targetRevision: HEAD
-      ref: values
-      path: k8s/apps/homeassistant
+  # Wrapper chart around pajikos/home-assistant (see k8s/apps/homeassistant/Chart.yaml).
+  source:
+    repoURL: git@github.com:danjuv/homelab.git
+    targetRevision: HEAD
+    path: k8s/apps/homeassistant
+    helm:
+      releaseName: homeassistant
   destination:
     server: https://kubernetes.default.svc
     namespace: homeassistant

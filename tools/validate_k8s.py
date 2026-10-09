@@ -136,6 +136,9 @@ def main():
     root = Path(__file__).resolve().parent.parent
     kube_version = os.environ.get("KUBERNETES_VERSION", "1.35.0")
     paths = run("git", "ls-files", "-z", "--", "k8s", cwd=root).split("\0")
+    # Local Helm charts are rendered through their Application; their templates
+    # and bundled files (e.g. Home Assistant config) are not plain manifests.
+    chart_dirs = {(root / name).parent for name in paths if Path(name).name == "Chart.yaml"}
     resources = []
     applications = []
     kustomizations = set()
@@ -143,6 +146,8 @@ def main():
     for name in paths:
         path = root / name
         if path.suffix not in {".yaml", ".yml"} and path.name != "Kustomization":
+            continue
+        if any(path.is_relative_to(chart) for chart in chart_dirs):
             continue
         if path.name in KUSTOMIZATIONS:
             kustomizations.add(path.parent)

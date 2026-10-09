@@ -1,0 +1,9 @@
+# Every config/packages/*.yaml becomes a Home Assistant package (see values.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ha-gitops-packages
+data:
+  {{- with .Files.Glob "config/packages/*.yaml" }}
+  {{- .AsConfig | nindent 2 }}
+  {{- end }}
