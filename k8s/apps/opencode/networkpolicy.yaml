@@ -1,0 +1,69 @@
+# Workflow pods in this namespace (OpenCode agents, hermes-notify) run
+# untrusted, LLM-driven code. They may reach only what tasks need: DNS, the
+# Kubernetes API (kubectl read-only access and the Argo executor), the Hermes
+# webhook, and the public internet over HTTP(S). Everything else in the
+# cluster, the LAN, and the tailnet is blocked. Nothing may connect in.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: workflow-pods
+  namespace: opencode
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # kubernetes.default (10.43.0.1:443) is DNATed to the k3s servers. Update
+    # when nodes change: kubectl get endpointslice -l kubernetes.io/service-name=kubernetes
+    - to:
+        - ipBlock:
+            cidr: 192.168.50.71/32
+        - ipBlock:
+            cidr: 192.168.50.148/32
+        - ipBlock:
+            cidr: 192.168.50.65/32
+      ports:
+        - protocol: TCP
+          port: 6443
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-agent
+      ports:
+        - protocol: TCP
+          port: 8644
+    # GitHub, OpenRouter, package registries, docs.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 0.0.0.0/8
+              - 10.0.0.0/8 # pods and services
+              - 100.64.0.0/10 # tailnet
+              - 127.0.0.0/8
+              - 169.254.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16 # LAN
+              - 224.0.0.0/4
+              - 240.0.0.0/4
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
