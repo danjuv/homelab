@@ -1,6 +1,7 @@
 # Run the Daikin aircon for a set time. Turning it on resumes its last mode,
-# temperature, fan speed and zones. Run the "Aircon on for..." script from a
-# dashboard, the app or voice; it asks for the duration.
+# temperature, fan speed and zones. Use the buttons on the Controls dashboard,
+# or run the "Aircon on for..." script (it asks for the duration; 1 hour if
+# called without one).
 timer:
   aircon:
     name: Aircon timer
@@ -26,17 +27,23 @@ script:
             # Must not be empty ({}): package merging drops empty mappings.
             enable_second: false
     sequence:
-      - action: climate.turn_on
-        target:
-          entity_id: climate.daikinap98108
+      # The field default above only pre-fills the UI form; when the script is
+      # called without a duration (tile tap, voice, script.turn_on), use 1 hour.
+      - variables:
+          run_for: >-
+            {%- set d = duration | default({'hours': 1}) -%}
+            {{ '%02d:%02d:%02d' % (d.hours | default(0) | int,
+                                   d.minutes | default(0) | int,
+                                   d.seconds | default(0) | int) }}
+      # Timer first, so the aircon is never left on without one.
       - action: timer.start
         target:
           entity_id: timer.aircon
         data:
-          duration: >-
-            {{ '%02d:%02d:%02d' % (duration.hours | default(0) | int,
-                                   duration.minutes | default(0) | int,
-                                   duration.seconds | default(0) | int) }}
+          duration: "{{ run_for }}"
+      - action: climate.turn_on
+        target:
+          entity_id: climate.daikinap98108
 
 automation:
   - id: aircon_timer_finished

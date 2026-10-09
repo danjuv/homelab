@@ -41,6 +41,9 @@ home-assistant:
     - name: gitops-packages
       configMap:
         name: ha-gitops-packages
+    - name: gitops-dashboards
+      configMap:
+        name: ha-gitops-dashboards
     # Automation blueprints from config/blueprints/<ns>/, mounted per file
     # (subPath): HA's blueprint scan would otherwise list the hidden ..<ts>/
     # copies in a ConfigMap directory mount. Changes need a pod restart.
@@ -55,6 +58,9 @@ home-assistant:
   additionalMounts:
     - name: gitops-packages
       mountPath: /config/gitops/packages
+      readOnly: true
+    - name: gitops-dashboards
+      mountPath: /config/gitops/dashboards
       readOnly: true
     - name: blueprints-blackshome
       mountPath: /config/blueprints/automation/Blackshome/sensor-light.yaml

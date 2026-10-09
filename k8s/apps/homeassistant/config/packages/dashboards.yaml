@@ -1,0 +1,12 @@
+# Dashboards managed in git: config/dashboards/<name>.yaml, mounted at
+# /config/gitops/dashboards. They are read-only in the UI; edit them here.
+# Adding or removing a dashboard needs a Home Assistant restart; edits to an
+# existing dashboard file show up on the next page refresh.
+lovelace:
+  dashboards:
+    dashboard-controls:
+      mode: yaml
+      title: Controls
+      icon: mdi:tune
+      show_in_sidebar: true
+      filename: gitops/dashboards/controls.yaml

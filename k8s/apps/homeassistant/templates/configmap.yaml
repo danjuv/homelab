@@ -7,6 +7,17 @@ data:
   {{- with .Files.Glob "config/packages/*.yaml" }}
   {{- .AsConfig | nindent 2 }}
   {{- end }}
+---
+# Every config/dashboards/*.yaml is a YAML dashboard (registered in
+# config/packages/dashboards.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ha-gitops-dashboards
+data:
+  {{- with .Files.Glob "config/dashboards/*.yaml" }}
+  {{- .AsConfig | nindent 2 }}
+  {{- end }}
 {{- /*
 One ConfigMap per automation blueprint namespace: config/blueprints/<ns>/*.yaml
 becomes ha-blueprints-<ns>; each file is mounted at

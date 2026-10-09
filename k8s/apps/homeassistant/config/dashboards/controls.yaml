@@ -1,0 +1,127 @@
+# "Controls" dashboard. Managed in git (read-only in the UI): edit this file
+# and refresh the page after Argo CD syncs. Card reference:
+# https://www.home-assistant.io/dashboards/
+title: Controls
+views:
+  - title: Aircon
+    path: aircon
+    icon: mdi:air-conditioner
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Aircon
+            icon: mdi:air-conditioner
+          - type: tile
+            entity: climate.daikinap98108
+            name: Aircon
+            grid_options:
+              columns: full
+            features:
+              - type: climate-hvac-modes
+                style: icons
+                hvac_modes:
+                  - "off"
+                  - cool
+                  - heat
+                  - heat_cool
+                  - dry
+                  - fan_only
+              - type: target-temperature
+          - type: tile
+            entity: switch.daikinap98108_upstairs
+            name: Upstairs
+            icon: mdi:home-floor-1
+          - type: tile
+            entity: switch.daikinap98108_downstairs
+            name: Downstairs
+            icon: mdi:home-floor-g
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Run for...
+            icon: mdi:timer-outline
+          - type: tile
+            entity: timer.aircon
+            name: Time left
+            grid_options:
+              columns: full
+          - type: button
+            name: 30 min
+            icon: mdi:timer-outline
+            show_state: false
+            grid_options:
+              columns: 4
+            tap_action:
+              action: perform-action
+              perform_action: script.aircon_on_for
+              data:
+                duration:
+                  minutes: 30
+          - type: button
+            name: 1 hour
+            icon: mdi:timer-outline
+            show_state: false
+            grid_options:
+              columns: 4
+            tap_action:
+              action: perform-action
+              perform_action: script.aircon_on_for
+              data:
+                duration:
+                  hours: 1
+          - type: button
+            name: 2 hours
+            icon: mdi:timer-outline
+            show_state: false
+            grid_options:
+              columns: 4
+            tap_action:
+              action: perform-action
+              perform_action: script.aircon_on_for
+              data:
+                duration:
+                  hours: 2
+          - type: button
+            name: Turn off now
+            icon: mdi:power
+            show_state: false
+            grid_options:
+              columns: full
+            tap_action:
+              action: perform-action
+              perform_action: climate.turn_off
+              target:
+                entity_id: climate.daikinap98108
+              confirmation:
+                text: Turn the aircon off?
+
+      # The Daikin doesn't report temperatures; these come from the Hue motion
+      # sensors and the office sensor.
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Room temperatures
+            icon: mdi:thermometer
+          - type: tile
+            entity: sensor.signify_netherlands_b_v_sml003_temperature_2
+            name: Danju's bedroom
+          - type: tile
+            entity: sensor.temperature_sensor_temperature
+            name: Office
+          - type: tile
+            entity: sensor.wardrobe_temperature
+            name: Wardrobe
+          - type: tile
+            entity: sensor.signify_netherlands_b_v_sml003_temperature
+            name: Entrance
+          - type: tile
+            entity: sensor.signify_netherlands_b_v_sml003_temperature_3
+            name: Kitchen
+          - type: tile
+            entity: sensor.upstairs_motion_sensor_temperature_2
+            name: Garage
