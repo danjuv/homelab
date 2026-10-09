@@ -96,22 +96,15 @@ networkPolicy:
         - protocol: TCP
           port: 9119
 
-# Debitsuccess tax invoice cron job: script from git, login as read-only files
+# Debitsuccess login for the invoice cron script, as read-only files
 # (cron scripts get a scrubbed env, so credentials can't come from env vars).
 extraVolumes:
-  - name: debitsuccess-script
-    configMap:
-      name: hermes-debitsuccess-script
-      defaultMode: 0444
   - name: debitsuccess-credentials
     secret:
       secretName: debitsuccess-credentials
       defaultMode: 0440
       optional: true
 extraVolumeMounts:
-  - name: debitsuccess-script
-    mountPath: /opt/data/scripts/debitsuccess
-    readOnly: true
   - name: debitsuccess-credentials
     mountPath: /var/run/secrets/debitsuccess
     readOnly: true

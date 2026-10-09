@@ -19,7 +19,7 @@ spec:
       ref: values
       path: k8s/apps/hermes
       directory:
-        include: "{sealedsecret.yaml,dashboard-sealedsecret.yaml,debitsuccess.sealed.yaml,debitsuccess-configmap.yaml}"
+        include: "{sealedsecret.yaml,dashboard-sealedsecret.yaml,debitsuccess.sealed.yaml}"
   destination:
     server: https://kubernetes.default.svc
     namespace: hermes
