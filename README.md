@@ -31,6 +31,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Seer | Media request management | [overseerr.home.lab](https://overseerr.home.lab) |
 | Tautulli | Plex/media server monitoring | [tautulli.home.lab](https://tautulli.home.lab) |
 | Homepage | Dashboard | [home.lab](https://home.lab) |
+| Home Assistant | Home automation | [homeassistant.home.lab](https://homeassistant.home.lab) |
 
 ## Structure
 
