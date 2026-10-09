@@ -7,6 +7,14 @@ home-assistant:
   # Enable for mDNS/SSDP auto-discovery (HomeKit, Chromecast, etc.)
   hostNetwork: false
 
+  # The Sonoff Zigbee dongle (ZHA) is plugged into this node.
+  nodeSelector:
+    kubernetes.io/hostname: danjeon-ms-7d42
+
+  # Required to open the serial device (not in the runtime's default device allowlist).
+  securityContext:
+    privileged: true
+
   persistence:
     enabled: true
     accessMode: ReadWriteOnce
@@ -24,15 +32,22 @@ home-assistant:
       homeassistant:
         packages: !include_dir_named gitops/packages
 
-  # Mounted as a directory (no subPath) so updates reach the running pod.
   additionalVolumes:
+    # Mounted as a directory (no subPath) so updates reach the running pod.
     - name: gitops-packages
       configMap:
         name: ha-gitops-packages
+    # Stable by-id path, exposed as /dev/ttyUSB0 (the path ZHA is configured with).
+    - name: zigbee
+      hostPath:
+        path: /dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_9c27ebd30374ef118891c074d9b539e6-if00-port0
+        type: CharDevice
   additionalMounts:
     - name: gitops-packages
       mountPath: /config/gitops/packages
       readOnly: true
+    - name: zigbee
+      mountPath: /dev/ttyUSB0
 
   ingress:
     enabled: true
