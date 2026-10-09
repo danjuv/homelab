@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opencode-agent
+  namespace: opencode
+---
+# Read-only cluster access for debugging. The built-in `view` role excludes
+# Secrets. Changes reach the cluster only through PRs and ArgoCD.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: opencode-agent-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: opencode-agent
+    namespace: opencode

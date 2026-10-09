@@ -1,0 +1,17 @@
+apiVersion: kubeopencode.io/v1alpha1
+kind: KubeOpenCodeConfig
+metadata:
+  # Cluster-scoped singleton; the controller only reads this name.
+  name: cluster
+  annotations:
+    # The CRD is installed by the chart in the same sync.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  # Used for git-init, context-init, and plugin-init containers in task pods.
+  # Keep aligned with controller.image.tag in values.yaml.
+  systemImage:
+    image: ghcr.io/kubeopencode/kubeopencode:v0.1.9@sha256:8517fc01a7692b4c6be0f1d42e6c6ebb6f306fc66b86b188ff5298fbba6b3141
+    imagePullPolicy: IfNotPresent
+  cleanup:
+    ttlSecondsAfterFinished: 604800 # 7 days
+    maxRetainedTasks: 50

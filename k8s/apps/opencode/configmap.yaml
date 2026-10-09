@@ -1,0 +1,62 @@
+# Files mounted into the agent container only (not git-init) at /etc/opencode-agent.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencode-agent
+  namespace: opencode
+data:
+  # Linked from $HOME/.gitconfig (the controller sets HOME=/tmp).
+  gitconfig: |
+    [user]
+      name = opencode-agent
+      email = opencode-agent@users.noreply.github.com
+    [credential "https://github.com"]
+      helper =
+      helper = !gh auth git-credential
+    [core]
+      excludesFile = /etc/opencode-agent/gitignore
+    [push]
+      autoSetupRemote = true
+    [safe]
+      directory = /workspace
+  # Files kubeopencode writes into the workspace (= repo root).
+  gitignore: |
+    /task.md
+    /.kubeopencode/
+  AGENTS.md: |
+    # Background agent rules
+
+    You run unattended in a Kubernetes pod that is deleted when you finish.
+    Nobody watches the session and nobody can answer questions, so make
+    reasonable decisions yourself and record them in the PR description.
+
+    The working directory is a fresh clone of github.com/danjuv/homelab at
+    `main`. `task.md` and `.kubeopencode/` are task inputs, ignored by git;
+    never commit them.
+
+    ## Workflow
+
+    1. Create a branch: `git switch -c agent/<slug>` (short kebab-case slug).
+    2. Make the change. Follow the conventions of neighbouring files.
+    3. Validate before committing: render changed Helm values with
+       `helm template` and check the output with `kubeconform`. Run any tests
+       the change touches.
+    4. Commit with Conventional Commit messages (`feat(app): ...`,
+       `fix(app): ...`), matching `git log`.
+    5. `git push`, then open a PR against main with `gh pr create`. The body
+       states what changed, why, how it was validated, and any decisions or
+       open questions.
+    6. End your final message with the PR URL. If you could not finish, say
+       exactly what is blocking instead.
+
+    If the task only asks a question or for an investigation, answer it in
+    your final message and do not create a branch or PR.
+
+    ## Constraints
+
+    - Never push to main, force-push, or merge PRs. A human reviews every
+      change, and ArgoCD deploys main automatically.
+    - Never commit plaintext secrets. SealedSecrets are created by a human; if
+      a task needs one, list the required keys in the PR.
+    - `kubectl` is read-only (no Secrets). Use it to inspect live state when
+      debugging; never try to change the cluster directly.

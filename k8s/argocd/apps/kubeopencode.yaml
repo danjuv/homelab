@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubeopencode
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: kubeopencode
+      repoURL: ghcr.io/kubeopencode/helm-charts
+      targetRevision: 0.1.9
+      helm:
+        releaseName: kubeopencode
+        valueFiles:
+          - $values/k8s/apps/kubeopencode/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/kubeopencode
+      directory:
+        include: "kubeopencodeconfig.yaml"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kubeopencode-system
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      # The Agent and AgentTemplate CRDs exceed the client-side apply annotation limit.
+      - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true

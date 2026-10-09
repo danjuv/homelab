@@ -25,6 +25,9 @@ contents:
     - uv
     - go-1.27
     - helm-4
+    # Match the cluster's minor version (k3s v1.35).
+    - kubectl-1.35
+    - kubectl-1.35-default # /usr/bin/kubectl symlink
     - kustomize
     - sealed-secrets-kubeseal
 

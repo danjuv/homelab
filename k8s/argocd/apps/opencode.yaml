@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opencode
+  namespace: argocd
+spec:
+  project: default
+  # Plain manifests: AgentTemplate, RBAC, agent files, SealedSecret.
+  # The CRDs come from the kubeopencode app.
+  source:
+    repoURL: git@github.com:danjuv/homelab.git
+    targetRevision: HEAD
+    path: k8s/apps/opencode
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: opencode
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
+    # Retry while the kubeopencode CRDs are still being installed.
+    retry:
+      limit: 5
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
