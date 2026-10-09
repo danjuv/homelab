@@ -9,7 +9,7 @@ data:
   opencode.json: |
     {
       "$schema": "https://opencode.ai/config.json",
-      "model": "openrouter/anthropic/claude-opus-5.5",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "autoupdate": false,
       "share": "disabled",
       "instructions": ["/etc/opencode-agent/AGENTS.md"],
