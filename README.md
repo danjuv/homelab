@@ -18,6 +18,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Longhorn | Distributed block storage |
 | csi-driver-nfs | NFS CSI driver |
 | nfs-volumes | NFS persistent volume definitions |
+| kubeopencode | Controller that runs OpenCode agent Tasks as pods |
 
 ## Apps
 
@@ -30,6 +31,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Seer | Media request management |
 | Tautulli | Plex/media server monitoring |
 | Homepage | Dashboard |
+| opencode | OpenCode agent template, RBAC and config for kubeopencode Tasks |
 
 ## Structure
 
