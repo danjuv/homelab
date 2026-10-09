@@ -3,6 +3,14 @@
 # https://www.home-assistant.io/dashboards/
 title: Controls
 views:
+  # Auto-generated, same as the built-in Overview (Home) dashboard: areas,
+  # summaries and devices update themselves as devices are added or moved.
+  - title: Overview
+    path: overview
+    icon: mdi:home
+    strategy:
+      type: home-overview
+
   - title: Aircon
     path: aircon
     icon: mdi:air-conditioner
