@@ -1,0 +1,207 @@
+defaultPodOptions:
+  # Bootstrap files and reverse-proxy settings are seeded below; no host
+  # networking, privileged mode, or device access.
+  automountServiceAccountToken: false
+  enableServiceLinks: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    # One writer for the SQLite recorder database on the Longhorn RWO volume.
+    strategy: Recreate
+    initContainers:
+      # Seed configuration.yaml on first start only; afterwards it belongs to the
+      # user. The seeded file includes http.yaml, which is managed from Git.
+      seed-config:
+        image:
+          repository: ghcr.io/home-operations/home-assistant
+          tag: 2026.10.0
+          digest: sha256:5d3bdf34773c59d33b868930ba021dd741f26a7c2bc9989eba3b25de16d7cd04
+        command:
+          - /bin/bash
+          - -c
+          - |
+            set -euo pipefail
+            if [ ! -f /config/configuration.yaml ]; then
+              cp /seed/configuration.yaml /config/configuration.yaml
+              echo "Seeded /config/configuration.yaml"
+            elif ! grep -Eq '^http:[[:space:]]*!include[[:space:]]+http\.yaml' /config/configuration.yaml; then
+              echo "WARNING: configuration.yaml does not include http.yaml; reverse-proxy settings are not applied" >&2
+            fi
+            for file in automations.yaml scripts.yaml scenes.yaml; do
+              [ -f "/config/$file" ] || echo "[]" > "/config/$file"
+            done
+            mkdir -p /config/themes
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            memory: 64Mi
+    containers:
+      main:
+        image:
+          repository: ghcr.io/home-operations/home-assistant
+          tag: 2026.10.0
+          digest: sha256:5d3bdf34773c59d33b868930ba021dd741f26a7c2bc9989eba3b25de16d7cd04
+        env:
+          TZ: "Australia/Sydney"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: "2"
+            memory: 2Gi
+        # /manifest.json is served without authentication once the frontend is up.
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /manifest.json
+                port: 8123
+              periodSeconds: 30
+              timeoutSeconds: 5
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /manifest.json
+                port: 8123
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 3
+          # Allow up to 5 minutes for first start and database migrations.
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /manifest.json
+                port: 8123
+              periodSeconds: 5
+              timeoutSeconds: 5
+              failureThreshold: 60
+
+configMaps:
+  config:
+    data:
+      configuration.yaml: |
+        # Seeded on first start; edit freely afterwards via the PVC.
+        default_config:
+
+        frontend:
+          themes: !include_dir_merge_named themes
+
+        automation: !include automations.yaml
+        script: !include scripts.yaml
+        scene: !include scenes.yaml
+
+        # Managed in Git (k8s/apps/home-assistant/values.yaml).
+        http: !include http.yaml
+      # Home Assistant rejects forwarded requests from untrusted proxies, so trust
+      # the cluster pod CIDR (k3s default) where ingress-nginx runs. The
+      # NetworkPolicy below only admits traffic from ingress-nginx.
+      http.yaml: |
+        use_x_forwarded_for: true
+        trusted_proxies:
+          - 10.42.0.0/16
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8123
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+      # Keep the frontend websocket open.
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: home-assistant-homelab-tls
+        hosts:
+          - homeassistant.home.lab
+    hosts:
+      - host: homeassistant.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+networkpolicies:
+  main:
+    controller: main
+    policyTypes:
+      - Ingress
+    rules:
+      ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: ingress-nginx
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: ingress-nginx
+                  app.kubernetes.io/component: controller
+          ports:
+            - protocol: TCP
+              port: 8123
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: longhorn
+    annotations:
+      argocd.argoproj.io/sync-options: Prune=false,Delete=false
+    globalMounts:
+      - path: /config
+  config-files:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        seed-config:
+          - path: /seed/configuration.yaml
+            subPath: configuration.yaml
+            readOnly: true
+        main:
+          - path: /config/http.yaml
+            subPath: http.yaml
+            readOnly: true
+  tmp:
+    type: emptyDir
+    globalMounts:
+      - path: /tmp
