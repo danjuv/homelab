@@ -18,7 +18,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Longhorn | Distributed block storage |
 | csi-driver-nfs | NFS CSI driver |
 | nfs-volumes | NFS persistent volume definitions |
-| OpenCode Tasks | Autonomous coding agent run as Argo Workflows (fresh repo clone per task, read-only cluster access, up to 5 concurrent); opens PRs |
+| OpenCode Tasks | Autonomous coding agent (Argo Workflows): RBAC, config, credentials; fresh repo clone per task, read-only cluster access, opens PRs |
 
 ## Apps
 
@@ -31,7 +31,6 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Seer | Media request management | [overseerr.home.lab](https://overseerr.home.lab) |
 | Tautulli | Plex/media server monitoring | [tautulli.home.lab](https://tautulli.home.lab) |
 | Homepage | Dashboard | [home.lab](https://home.lab) |
-| opencode | Background coding agent (OpenCode): agent RBAC, config and credentials | - |
 
 ## Structure
 
