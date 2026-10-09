@@ -79,7 +79,7 @@ serviceAccount:
   automountServiceAccountToken: false
 
 # Short-lived, kubelet-rotated token for open-webui-sa. The OpenCode Tasks tool
-# (tools/opencode_tasks.py) sends it to the Argo Server to run OpenCode tasks
+# (installed in the admin panel) sends it to the Argo Server to run OpenCode tasks
 # (Role: k8s/apps/opencode/rbac.yaml). The default token stays unmounted.
 volumes:
   - name: argo-workflows-token
