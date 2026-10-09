@@ -47,9 +47,6 @@ home-assistant:
     - name: blueprints-blackshome
       configMap:
         name: ha-blueprints-blackshome
-    - name: blueprints-homeassistant
-      configMap:
-        name: ha-blueprints-homeassistant
     # Stable by-id path, exposed as /dev/ttyUSB0 (the path ZHA is configured with).
     - name: zigbee
       hostPath:
@@ -62,10 +59,6 @@ home-assistant:
     - name: blueprints-blackshome
       mountPath: /config/blueprints/automation/Blackshome/sensor-light.yaml
       subPath: sensor-light.yaml
-      readOnly: true
-    - name: blueprints-homeassistant
-      mountPath: /config/blueprints/automation/homeassistant/motion_light.yaml
-      subPath: motion_light.yaml
       readOnly: true
     - name: zigbee
       mountPath: /dev/ttyUSB0
