@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homeassistant
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: home-assistant
+      repoURL: https://pajikos.github.io/home-assistant-helm-chart/
+      targetRevision: 0.3.84
+      helm:
+        releaseName: homeassistant
+        valueFiles:
+          - $values/k8s/apps/homeassistant/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/homeassistant
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homeassistant
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true

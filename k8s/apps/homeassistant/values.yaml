@@ -1,0 +1,34 @@
+env:
+  - name: TZ
+    value: Australia/Sydney
+
+# Enable for mDNS/SSDP auto-discovery (HomeKit, Chromecast, etc.)
+hostNetwork: false
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  storageClass: longhorn
+
+# Seeds configuration.yaml / .storage/http with trusted_proxies so
+# ingress-nginx forwarded requests aren't rejected with 400.
+configuration:
+  enabled: true
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+  tls:
+    - secretName: homeassistant-homelab-tls
+      hosts:
+        - homeassistant-k8s.home.lab
+  hosts:
+    - host: homeassistant-k8s.home.lab
+      paths:
+        - path: /
+          pathType: Prefix
