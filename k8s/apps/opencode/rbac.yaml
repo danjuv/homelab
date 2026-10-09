@@ -18,3 +18,41 @@ subjects:
   - kind: ServiceAccount
     name: opencode-agent
     namespace: opencode
+---
+# Hermes (hermes/hermes) submits and follows OpenCode tasks through the Argo
+# Server API, which uses the caller's token. It can only run WorkflowTemplates
+# (controller workflowRestrictions: Strict), so it can't pick another
+# ServiceAccount or inject steps.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hermes-workflows
+  namespace: opencode
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [workflows]
+    # update: stop/terminate
+    verbs: [create, get, list, watch, update]
+  - apiGroups: [argoproj.io]
+    resources: [workflowtemplates]
+    verbs: [get, list]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hermes-workflows
+  namespace: opencode
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hermes-workflows
+subjects:
+  - kind: ServiceAccount
+    name: hermes
+    namespace: hermes

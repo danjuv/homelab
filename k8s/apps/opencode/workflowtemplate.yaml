@@ -1,0 +1,176 @@
+# OpenCode coding task: one pod per task with a fresh clone of main. The agent
+# makes the change, validates it, and opens a PR. It has read-only cluster
+# access (ServiceAccount opencode-agent: built-in `view`, no Secrets).
+#
+# Submit (Argo Server API, or the UI/CLI):
+#   argo submit -n opencode --from workflowtemplate/opencode-task \
+#     -p brief="$(printf '%s' "<task text>" | base64 -w0)" -p title="<short title>"
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: opencode-task
+  namespace: opencode
+spec:
+  entrypoint: run
+  # Telegram message via Hermes when the task finishes (any outcome).
+  onExit: notify
+  serviceAccountName: opencode-agent
+  # Hard cap; the per-task timeout below is usually lower.
+  activeDeadlineSeconds: 7200
+  arguments:
+    parameters:
+      # Base64 so the text can't be expanded by Argo's {{...}} templating; it
+      # reaches the agent as a single argument and is never run by a shell.
+      - name: brief
+        description: Task text, base64-encoded.
+      - name: title
+        description: Short title for the OpenCode session (optional).
+        value: ""
+      - name: timeout
+        description: Maximum run time in seconds (at most 7200).
+        value: "2700"
+  podMetadata:
+    labels:
+      app.kubernetes.io/name: opencode-task
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: workspace
+      emptyDir:
+        sizeLimit: 5Gi
+    - name: home
+      emptyDir:
+        sizeLimit: 5Gi
+    - name: tmp
+      emptyDir:
+        sizeLimit: 2Gi
+    - name: agent-files
+      configMap:
+        name: opencode-agent
+  templates:
+    - name: notify
+      steps:
+        - - name: hermes
+            templateRef:
+              name: hermes-notify
+              template: send
+            arguments:
+              parameters:
+                - name: message
+                  value: |-
+                    {{=workflow.status == 'Succeeded' ? 'OpenCode task done' : 'OpenCode task ' + lower(workflow.status)}}: {{workflow.parameters.title}}
+                    Task: {{workflow.name}}
+                    {{=(workflow.outputs.parameters.pr_url ?? '-') != '-' ? 'PR: ' + workflow.outputs.parameters.pr_url : 'No PR. Details: https://argo-workflows.home.lab/workflows/opencode/' + workflow.name}}
+    - name: run
+      activeDeadlineSeconds: "{{workflow.parameters.timeout}}"
+      outputs:
+        parameters:
+          # Last PR URL in the agent's output, or "-"; read by the exit handler.
+          - name: pr_url
+            globalName: pr_url
+            valueFrom:
+              path: /tmp/pr_url
+      initContainers:
+        - name: clone
+          image: &image ghcr.io/danjuv/opencode:1.18.35@sha256:057549c5861a6026f5dbbde25311da5fc7e9ae1a798b038e275be97f9947d897
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              git clone --quiet --depth 50 --branch main https://github.com/danjuv/homelab.git /workspace
+              git -C /workspace log -1 --format='cloned %h %s'
+          env:
+            - name: HOME
+              value: /home/opencode
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: opencode-secrets
+                  key: password
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: home
+              mountPath: /home/opencode
+            - name: tmp
+              mountPath: /tmp
+            # git uses gh (GH_TOKEN) as its credential helper.
+            - name: agent-files
+              mountPath: /home/opencode/.gitconfig
+              subPath: gitconfig
+              readOnly: true
+          securityContext: &containerSecurity
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 512Mi
+      container:
+        image: *image
+        workingDir: /workspace
+        command:
+          - sh
+          - -c
+          - |
+            set -o pipefail
+            opencode run --title "${TASK_TITLE:-$TASK_ID}" "$(printf '%s' "$TASK_BRIEF_B64" | base64 -d)" 2>&1 | tee /tmp/opencode.log
+            status=$?
+            grep -o 'https://github\.com/[A-Za-z0-9_.-]*/[A-Za-z0-9_.-]*/pull/[0-9]*' /tmp/opencode.log | tail -n1 > /tmp/pr_url
+            [ -s /tmp/pr_url ] || echo - > /tmp/pr_url
+            exit $status
+        env:
+          - name: HOME
+            value: /home/opencode
+          - name: OPENCODE_CONFIG
+            value: /etc/opencode-agent/opencode.json
+          - name: TASK_ID
+            value: "{{workflow.name}}"
+          - name: TASK_TITLE
+            value: "{{workflow.parameters.title}}"
+          - name: TASK_BRIEF_B64
+            value: "{{workflow.parameters.brief}}"
+          - name: OPENROUTER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: opencode-secrets
+                key: OPENROUTER_API_KEY
+          - name: GH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: opencode-secrets
+                key: password
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+          - name: home
+            mountPath: /home/opencode
+          - name: tmp
+            mountPath: /tmp
+          - name: agent-files
+            mountPath: /home/opencode/.gitconfig
+            subPath: gitconfig
+            readOnly: true
+          - name: agent-files
+            mountPath: /etc/opencode-agent
+            readOnly: true
+        securityContext: *containerSecurity
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: "4"
+            memory: 6Gi

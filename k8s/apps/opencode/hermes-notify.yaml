@@ -1,0 +1,76 @@
+# Sends a message to Telegram through the Hermes webhook (route workflow-done,
+# deliver_only). Use as an exit handler from any workflow in this namespace:
+#
+#   spec:
+#     onExit: notify
+#   templates:
+#     - name: notify
+#       steps:
+#         - - name: hermes
+#             templateRef: {name: hermes-notify, template: send}
+#             arguments:
+#               parameters:
+#                 - name: message
+#                   value: "{{workflow.name}} finished: {{workflow.status}}"
+#
+# Requests are signed with the shared secret (hermes-webhook, sealed for both
+# namespaces by tools/seal_hermes_webhook.sh).
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: hermes-notify
+  namespace: opencode
+spec:
+  templates:
+    - name: send
+      inputs:
+        parameters:
+          - name: message
+      # Nothing here needs cluster access.
+      automountServiceAccountToken: false
+      container:
+        image: ghcr.io/danjuv/opencode:1.18.35@sha256:057549c5861a6026f5dbbde25311da5fc7e9ae1a798b038e275be97f9947d897
+        command: [python3, -c]
+        args:
+          - |
+            import hashlib, hmac, json, os, sys, time, urllib.request
+            body = json.dumps({"message": os.environ["MESSAGE"]}).encode()
+            ts = str(int(time.time()))
+            sig = hmac.new(os.environ["WEBHOOK_SECRET"].encode(), f"{ts}.".encode() + body, hashlib.sha256).hexdigest()
+            req = urllib.request.Request(os.environ["WEBHOOK_URL"], data=body, method="POST", headers={
+                "Content-Type": "application/json",
+                "X-Webhook-Timestamp": ts,
+                "X-Webhook-Signature-V2": sig,
+                "X-Request-ID": os.environ["REQUEST_ID"],
+            })
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    print("delivered:", resp.status, resp.read(200).decode(errors="replace"))
+            except urllib.error.HTTPError as exc:
+                sys.exit(f"hermes rejected the message: HTTP {exc.code} {exc.read(300).decode(errors='replace')}")
+        env:
+          - name: MESSAGE
+            value: "{{inputs.parameters.message}}"
+          - name: WEBHOOK_URL
+            value: http://hermes.hermes.svc.cluster.local:8644/webhooks/workflow-done
+          # Hermes drops repeats of the same ID for an hour.
+          - name: REQUEST_ID
+            value: "{{workflow.uid}}-{{pod.name}}"
+          - name: WEBHOOK_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: hermes-webhook
+                key: WEBHOOK_SECRET
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+      activeDeadlineSeconds: 120

@@ -11,6 +11,8 @@ controller:
   workflowDefaults:
     spec:
       serviceAccountName: argo-workflow
+      executor:
+        serviceAccountName: argo-workflow
       activeDeadlineSeconds: 86400
       ttlStrategy:
         secondsAfterCompletion: 604800
@@ -33,6 +35,7 @@ workflow:
   serviceAccount:
     create: true
     name: argo-workflow
+    createSecret: true
 
 executor:
   image:

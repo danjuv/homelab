@@ -32,9 +32,24 @@ config:
       # k3s uses this pod CIDR by default; nginx peers are restricted below.
       trusted_proxies:
         - 10.42.0.0/16
+    # Argo Workflows (k8s/apps/opencode/workflowtemplate.yaml hermes-notify)
+    # POST finished-task messages here; delivered to Telegram as-is, no agent
+    # turn. Signed with WEBHOOK_SECRET (hermes-webhook.sealed.yaml).
+    platforms:
+      webhook:
+        enabled: true
+        extra:
+          routes:
+            workflow-done:
+              deliver: telegram
+              deliver_only: true
+              prompt: "{message}"
 
 secrets:
   existingSecret: hermes-secrets
+extraEnvFrom:
+  - secretRef:
+      name: hermes-webhook
 
 # Increment with SealedSecret changes to reload credentials through GitOps.
 podAnnotations:
@@ -45,6 +60,10 @@ apiServer:
   host: 0.0.0.0
   port: 8642
   modelName: hermes-agent
+
+webhook:
+  enabled: true
+  port: 8644
 
 service:
   enabled: true
@@ -58,6 +77,10 @@ service:
       port: 9119
       targetPort: 9119
       containerPort: 9119
+    - name: webhook
+      port: 8644
+      targetPort: 8644
+      containerPort: 8644
 
 ingress:
   enabled: true
@@ -78,7 +101,8 @@ ingress:
       hosts:
         - hermes.home.lab
 
-# nginx can reach only the dashboard. The API remains port-forward-only.
+# nginx can reach only the dashboard; workflow pods only the webhook. The API
+# remains port-forward-only.
 networkPolicy:
   enabled: true
   policyTypes:
@@ -95,6 +119,13 @@ networkPolicy:
       ports:
         - protocol: TCP
           port: 9119
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: opencode
+      ports:
+        - protocol: TCP
+          port: 8644
 
 # Debitsuccess login for the invoice cron script, as read-only files
 # (cron scripts get a scrubbed env, so credentials can't come from env vars).
@@ -104,9 +135,22 @@ extraVolumes:
       secretName: debitsuccess-credentials
       defaultMode: 0440
       optional: true
+  # Short-lived, kubelet-rotated token for the hermes ServiceAccount. The
+  # opencode skill sends it to the Argo Server to run OpenCode tasks
+  # (Role: k8s/apps/opencode/rbac.yaml). The default token stays unmounted.
+  - name: argo-workflows-token
+    projected:
+      defaultMode: 0440
+      sources:
+        - serviceAccountToken:
+            path: token
+            expirationSeconds: 3600
 extraVolumeMounts:
   - name: debitsuccess-credentials
     mountPath: /var/run/secrets/debitsuccess
+    readOnly: true
+  - name: argo-workflows-token
+    mountPath: /var/run/secrets/argo-workflows
     readOnly: true
 
 # The dashboard/remote Desktop backend shares the gateway's persistent state.

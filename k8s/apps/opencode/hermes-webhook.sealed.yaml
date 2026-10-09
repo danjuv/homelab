@@ -1,0 +1,14 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: hermes-webhook
+  namespace: opencode
+spec:
+  encryptedData:
+    WEBHOOK_SECRET: AgCOZKfNn57brOaYfqarAhyD+OHN94SLs/D3HFA+YKKYY5orD/bDEo1sJXTq6MtnyMqsf9pZLsjOLHmtyCDhebt8wAv8Kn7mJgzxyRVnychnf8Ye+lSaentIQVAaVc5X3tDqgGPfSyxRre4LjOy/hpujrUmFJs7+8LbwLtBjIsb59tdJN4QTqtbpg9lr2PKUEpQzwv/m0oLX01vDLTF9YPB7D4ImPGZLW4dmQP+bDtXI/xTZp/IMd5c21eSwTT8hMWtENeTGQ8EBWQHh7198CeoRPQUfCFQqU67h351Lg9nU9116ARBJxX9eTrSmDsI15JskNxkadaIHZn2vRjva63WO4DiZvYOwpcmIFgvcNin7wRX5zzneyHpbhgu1XPG59aS3n52KfxGTaN7bJ+Ty/IxpitsGmLDoTn2cZ0bk2NFtmiNkzWVJkp6NiEZ9Iyv+JCDlXmyAdkEtuQWYH8Ia6e98uA9r12dcTurG6cqNhnWUgcs8XD6j0RKNtK5Si/L28hPHx4yYjJwe1MyNXR0GwMt/bXtiwNVwM3SZ324+w7NwQ0QcHBJXy0G1ITzo+z8Yh3Q8oIR0eXrgYb5WKdHc5m0l13lzAkRxEGOt7Y+S2t6+7jYEBuEgRnHxCNbx9nrZUVVc5Gf6wYKGOrk60c9oaGKcjtGvhkj14+sHU2MJPWHXJKf49jkMLV71VLo+axBBHNUBH80FCyWxQXnfUkgS5OHoJKHJ9UwjwRqkFq0OGlVptvixj0AEjSdp07xIpMsatsAuZw9f4l7iv5HAACTw9LsI
+  template:
+    metadata:
+      name: hermes-webhook
+      namespace: opencode
+    type: Opaque
