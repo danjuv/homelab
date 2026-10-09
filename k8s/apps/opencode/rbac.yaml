@@ -56,3 +56,41 @@ subjects:
   - kind: ServiceAccount
     name: hermes
     namespace: hermes
+---
+# Open WebUI (open-webui/open-webui-sa) submits and follows OpenCode tasks
+# from chat through the "OpenCode Tasks" tool
+# (k8s/apps/open-webui/tools/opencode_tasks.py). Same limits as Hermes:
+# WorkflowTemplates only, opencode namespace only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: open-webui-workflows
+  namespace: opencode
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [workflows]
+    # update: stop/terminate
+    verbs: [create, get, list, watch, update]
+  - apiGroups: [argoproj.io]
+    resources: [workflowtemplates]
+    verbs: [get, list]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [pods/log]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: open-webui-workflows
+  namespace: opencode
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: open-webui-workflows
+subjects:
+  - kind: ServiceAccount
+    name: open-webui-sa
+    namespace: open-webui

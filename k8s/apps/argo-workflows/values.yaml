@@ -126,6 +126,14 @@ extraObjects:
             - namespaceSelector:
                 matchLabels:
                   kubernetes.io/metadata.name: hermes
+            # OpenCode Tasks tool (k8s/apps/open-webui/tools/opencode_tasks.py)
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: open-webui
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: open-webui
+                  app.kubernetes.io/component: open-webui
           ports:
             - protocol: TCP
               port: 2746
