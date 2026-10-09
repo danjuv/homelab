@@ -22,16 +22,16 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 
 ## Apps
 
-| App | Purpose |
-|-----|---------|
-| Sonarr | TV show management |
-| Radarr | Movie management |
-| Prowlarr | Indexer management |
-| qBittorrent | Torrent client |
-| Seer | Media request management |
-| Tautulli | Plex/media server monitoring |
-| Homepage | Dashboard |
-| opencode | Background coding agent (OpenCode): agent RBAC, config and credentials |
+| App | Purpose | URL |
+|-----|---------|-----|
+| Sonarr | TV show management | [sonarr.home.lab](https://sonarr.home.lab) |
+| Radarr | Movie management | [radarr.home.lab](https://radarr.home.lab) |
+| Prowlarr | Indexer management | [prowlarr.home.lab](https://prowlarr.home.lab) |
+| qBittorrent | Torrent client | [qbt.home.lab](https://qbt.home.lab) |
+| Seer | Media request management | [overseerr.home.lab](https://overseerr.home.lab) |
+| Tautulli | Plex/media server monitoring | [tautulli.home.lab](https://tautulli.home.lab) |
+| Homepage | Dashboard | [home.lab](https://home.lab) |
+| opencode | Background coding agent (OpenCode): agent RBAC, config and credentials | - |
 
 ## Structure
 
