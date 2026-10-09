@@ -80,9 +80,9 @@ home-assistant:
     tls:
       - secretName: homeassistant-homelab-tls
         hosts:
-          - homeassistant-k8s.home.lab
+          - homeassistant.home.lab
     hosts:
-      - host: homeassistant-k8s.home.lab
+      - host: homeassistant.home.lab
         paths:
           - path: /
             pathType: Prefix
