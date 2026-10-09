@@ -18,7 +18,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Longhorn | Distributed block storage |
 | csi-driver-nfs | NFS CSI driver |
 | nfs-volumes | NFS persistent volume definitions |
-| OpenCode Tasks | Autonomous coding agent (Argo Workflows); opens PRs from background tasks |
+| OpenCode Tasks | Autonomous coding agent; opens PRs from background tasks |
 
 ## Apps
 
