@@ -1,5 +1,8 @@
 # Values for the upstream pajikos/home-assistant chart (wrapped by Chart.yaml).
 home-assistant:
+  # Scaled down for the Docker -> k8s cutover (data restore onto the volume).
+  replicaCount: 0
+
   env:
     - name: TZ
       value: Australia/Sydney
