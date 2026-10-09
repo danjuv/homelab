@@ -67,8 +67,8 @@ controllers:
       proxy:
         image:
           repository: docker.io/nginxinc/nginx-unprivileged
-          tag: 1.31.6-alpine
-          digest: sha256:b9241c6e7b8e9a862f129d8d4199ab64b10390949a78bdd5603379b32c844083
+          tag: 1.31.6
+          digest: sha256:ce1317316e272062981736063d4a7eed7d80b0d2a53da1305d0752aa4aee7a48
         envFrom:
           # SEERR_API_KEY, substituted into the nginx template at startup.
           - secretRef:
