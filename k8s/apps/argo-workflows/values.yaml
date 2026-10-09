@@ -1,0 +1,128 @@
+
+images:
+  pullPolicy: IfNotPresent
+
+controller:
+  workflowRestrictions:
+    templateReferencing: Strict
+  parallelism: 5
+  workflowNamespaces:
+    - opencode
+  workflowDefaults:
+    spec:
+      serviceAccountName: argo-workflow
+      activeDeadlineSeconds: 86400
+      ttlStrategy:
+        secondsAfterCompletion: 604800
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+workflow:
+  serviceAccount:
+    create: true
+    name: argo-workflow
+
+executor:
+  image:
+    nonroot: true
+
+server:
+
+  authModes:
+    - client
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+      nginx.ingress.kubernetes.io/proxy-buffering: "off"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    hosts:
+      - argo-workflows.home.lab
+    tls:
+      - secretName: argo-workflows-homelab-tls
+        hosts:
+          - argo-workflows.home.lab
+
+extraObjects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: argo-workflows-ui
+      namespace: argo-workflows
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: argo-workflows-ui
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: argo-workflows-ui
+    subjects:
+      - kind: ServiceAccount
+        name: argo-workflows-ui
+        namespace: argo-workflows
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: argo-workflows-ui
+    rules:
+      - apiGroups: [argoproj.io]
+        resources: [workflows]
+        verbs: [get, list, watch, create, update, patch, delete]
+      - apiGroups: [argoproj.io]
+        resources: [workflowtemplates, clusterworkflowtemplates, cronworkflows, workfloweventbindings, workflowtaskresults]
+        verbs: [get, list, watch]
+      - apiGroups: [""]
+        resources: [pods, pods/log, events]
+        verbs: [get, list, watch]
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: argo-workflows-server
+      namespace: argo-workflows
+    spec:
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/component: server
+          app.kubernetes.io/instance: argo-workflows
+      policyTypes:
+        - Ingress
+      ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: ingress-nginx
+              podSelector:
+                matchLabels:
+                  app.kubernetes.io/name: ingress-nginx
+                  app.kubernetes.io/component: controller
+            - namespaceSelector:
+                matchLabels:
+                  kubernetes.io/metadata.name: hermes
+          ports:
+            - protocol: TCP
+              port: 2746
