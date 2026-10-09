@@ -1,0 +1,213 @@
+# Migrated from the Docker install's automations.yaml. IDs are unchanged so
+# entity IDs, traces and history carry over.
+automation:
+  # Motion-sensor lights
+  - id: "1745212223168"
+    alias: Entrance Sensor Light
+    description: Toggles the light in the entrance room based on motion and light level
+    use_blueprint:
+      path: Blackshome/sensor-light.yaml
+      input:
+        motion_trigger:
+          - binary_sensor.entrance
+        light_switch:
+          entity_id:
+            - light.signify_netherlands_b_v_lwa028
+        time_delay: 1
+        include_light_control:
+          - use_transition
+          - use_brightness
+        include_ambient: ambient_enabled
+        ambient_light_sensor: sensor.signify_netherlands_b_v_sml003_illuminance
+        light_brightness: 52
+        light_transition_on: 2.5
+        light_transition_off: 2
+
+  - id: "1745560606260"
+    alias: Bedroom motion light
+    description: ""
+    use_blueprint:
+      path: Blackshome/sensor-light.yaml
+      input:
+        motion_trigger:
+          - binary_sensor.signify_netherlands_b_v_sml003
+        light_switch:
+          entity_id: light.danjubedroom
+        time_delay: 1
+        include_ambient: ambient_enabled
+        ambient_light_sensor: sensor.signify_netherlands_b_v_sml003_illuminance_2
+        ambient_light_value: 3
+
+  - id: "1745564689237"
+    alias: Garage motion light
+    description: ""
+    use_blueprint:
+      path: Blackshome/sensor-light.yaml
+      input:
+        motion_trigger:
+          - binary_sensor.upstairs_motion_sensor
+        light_switch:
+          entity_id:
+            - light.garage_light_1_2
+            - light.garage_light_2_2
+
+  - id: "1764730761005"
+    alias: Office wardrobe Light
+    description: ""
+    use_blueprint:
+      path: homeassistant/motion_light.yaml
+      input:
+        motion_entity: binary_sensor.wardrobe
+        light_target:
+          entity_id: light.signify_netherlands_b_v_lwa028_2
+
+  - id: "1764741549042"
+    alias: Pantry motion
+    description: ""
+    use_blueprint:
+      path: Blackshome/sensor-light.yaml
+      input:
+        motion_trigger:
+          - binary_sensor.signify_netherlands_b_v_sml003_2
+        light_switch:
+          entity_id: light.pantry
+        time_delay: 1
+        include_ambient: ambient_enabled
+        ambient_light_sensor: sensor.signify_netherlands_b_v_sml003_illuminance_3
+        ambient_light_options: ambient_light_option_enabled
+
+  # Entertainment room remote (ZHA device 8fcbc1adf9ac8222a5cc984d2d57c32c)
+  - id: "1745569547358"
+    alias: Entertainment Room increase brightness
+    description: ""
+    triggers:
+      - device_id: 8fcbc1adf9ac8222a5cc984d2d57c32c
+        domain: zha
+        type: remote_button_short_press
+        subtype: dim_up
+        trigger: device
+    conditions: []
+    actions:
+      - service: light.turn_on
+        metadata: {}
+        data:
+          brightness_step_pct: 25
+        target:
+          entity_id: |
+            {{ area_entities('entertainment_room') | select('match', '^light', ignorecase=False) |  select('is_state', 'on') | list }}
+    mode: single
+
+  - id: "1745569800929"
+    alias: Entertainment Room decrease brightness
+    description: ""
+    triggers:
+      - device_id: 8fcbc1adf9ac8222a5cc984d2d57c32c
+        domain: zha
+        type: remote_button_short_press
+        subtype: dim_down
+        trigger: device
+    conditions: []
+    actions:
+      - service: light.turn_on
+        metadata: {}
+        data:
+          brightness_step_pct: -25
+        target:
+          entity_id: |
+            {{ area_entities('entertainment_room') | select('match', '^light', ignorecase=False) |  select('is_state', 'on') | list }}
+    mode: single
+
+  - id: "1745593412323"
+    alias: Entertainment Room Scene Toggle (3 Scenes)
+    description: Toggles between three Entertainment Room scenes
+    triggers:
+      - device_id: 8fcbc1adf9ac8222a5cc984d2d57c32c
+        domain: zha
+        type: remote_button_short_press
+        subtype: turn_off
+        trigger: device
+    action:
+      - service: input_select.select_next
+        target:
+          entity_id: input_select.entertainment_room_lights_selector
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.entertainment_room_lights_selector
+                state: "Off"
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.lights_off
+          - conditions:
+              - condition: state
+                entity_id: input_select.entertainment_room_lights_selector
+                state: LEDs only
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.leds_only
+          - conditions:
+              - condition: state
+                entity_id: input_select.entertainment_room_lights_selector
+                state: Light only
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.entertainment_room_lights_only
+          - conditions:
+              - condition: state
+                entity_id: input_select.entertainment_room_lights_selector
+                state: All
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.entertainment_room_all_lights
+    mode: single
+
+  - id: "1745746901155"
+    alias: Entertainment switch
+    description: ""
+    triggers:
+      - device_id: 8fcbc1adf9ac8222a5cc984d2d57c32c
+        domain: zha
+        type: remote_button_short_press
+        subtype: turn_on
+        trigger: device
+    conditions: []
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: |-
+                  {{ is_state('light.tv_2', 'on') or
+                     is_state('light.stairs_light_2', 'on') or
+                     is_state('light.tv_led_2_2', 'on') or
+                     is_state('light.tv_led_1', 'on') }}
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id:
+                    - light.tv_2
+                    - light.stairs_light_2
+                    - light.tv_led_2_2
+                    - light.tv_led_1
+          - conditions:
+              - condition: template
+                value_template: |-
+                  {{ is_state('light.tv_2', 'off') and
+                     is_state('light.stairs_light_2', 'off') and
+                     is_state('light.tv_led_2_2', 'off') and
+                     is_state('light.tv_led_1', 'off') }}
+            sequence:
+              - service: scene.turn_on
+                data:
+                  entity_id: |
+                    {% set selected = states('input_select.entertainment_room_lights_selector') %} {% if selected == 'LEDs only' %}
+                      scene.leds_only
+                    {% elif selected == 'Light only' %}
+                      scene.entertainment_room_lights_only
+                    {% elif selected == 'All' %}
+                      scene.entertainment_room_all_lights
+                    {% endif %}
+    mode: single

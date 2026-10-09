@@ -37,6 +37,15 @@ home-assistant:
     - name: gitops-packages
       configMap:
         name: ha-gitops-packages
+    # Automation blueprints from config/blueprints/<ns>/, mounted per file
+    # (subPath): HA's blueprint scan would otherwise list the hidden ..<ts>/
+    # copies in a ConfigMap directory mount. Changes need a pod restart.
+    - name: blueprints-blackshome
+      configMap:
+        name: ha-blueprints-blackshome
+    - name: blueprints-homeassistant
+      configMap:
+        name: ha-blueprints-homeassistant
     # Stable by-id path, exposed as /dev/ttyUSB0 (the path ZHA is configured with).
     - name: zigbee
       hostPath:
@@ -45,6 +54,14 @@ home-assistant:
   additionalMounts:
     - name: gitops-packages
       mountPath: /config/gitops/packages
+      readOnly: true
+    - name: blueprints-blackshome
+      mountPath: /config/blueprints/automation/Blackshome/sensor-light.yaml
+      subPath: sensor-light.yaml
+      readOnly: true
+    - name: blueprints-homeassistant
+      mountPath: /config/blueprints/automation/homeassistant/motion_light.yaml
+      subPath: motion_light.yaml
       readOnly: true
     - name: zigbee
       mountPath: /dev/ttyUSB0

@@ -7,3 +7,25 @@ data:
   {{- with .Files.Glob "config/packages/*.yaml" }}
   {{- .AsConfig | nindent 2 }}
   {{- end }}
+{{- /*
+One ConfigMap per automation blueprint namespace: config/blueprints/<ns>/*.yaml
+becomes ha-blueprints-<ns>; each file is mounted at
+/config/blueprints/automation/<ns>/<file> (see values.yaml), i.e. use_blueprint
+path "<ns>/<file>.yaml".
+*/}}
+{{- $namespaces := dict }}
+{{- range $path, $_ := .Files.Glob "config/blueprints/*/*.yaml" }}
+{{- $_ := set $namespaces (base (dir $path)) true }}
+{{- end }}
+{{- range $ns, $_ := $namespaces }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ha-blueprints-{{ lower $ns }}
+  annotations:
+    # Blueprints can exceed the 256KB last-applied annotation limit of client-side apply.
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  {{- ($.Files.Glob (printf "config/blueprints/%s/*.yaml" $ns)).AsConfig | nindent 2 }}
+{{- end }}
