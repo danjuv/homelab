@@ -1,0 +1,31 @@
+# Read-only Kubernetes MCP server for Open WebUI (External Tools ->
+# http://kubernetes-mcp-server.kubernetes-mcp-server.svc:8080/mcp).
+# The endpoint has no auth; networkpolicy.yaml limits callers to Open WebUI.
+fullnameOverride: kubernetes-mcp-server
+
+# The chart's appVersion is `latest`; pin the server.
+image:
+  # renovate: datasource=docker depName=quay.io/containers/kubernetes_mcp_server
+  version: v0.0.67
+
+ingress:
+  enabled: false
+
+# Built-in `view`: read-only, excludes Secrets.
+rbac:
+  extraClusterRoleBindings:
+    - name: view
+      roleRef:
+        name: view
+        external: true
+
+# Rendered to config.toml.
+config:
+  port: "{{ .Values.service.port }}"
+  stateless: true
+  read_only: true
+  toolsets: ["core"]
+  denied_resources:
+    - group: ""
+      version: v1
+      kind: Secret

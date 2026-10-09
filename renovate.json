@@ -22,6 +22,14 @@
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/k8s/apps/.+/values\\.yaml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s*\\n\\s*[\\w.-]+:\\s*[\"']?(?<currentValue>[^\\s\"']+)"
+      ],
+      "versioningTemplate": "docker"
     }
   ],
   "packageRules": [
@@ -53,6 +61,12 @@
       "matchManagers": ["argocd"],
       "matchDepNames": ["ghcr.io/vectorize-io/charts/hindsight/hindsight"],
       "overridePackageName": "vectorize-io/charts/hindsight",
+      "registryUrls": ["https://ghcr.io"]
+    },
+    {
+      "matchManagers": ["argocd"],
+      "matchDepNames": ["ghcr.io/containers/charts/kubernetes-mcp-server/kubernetes-mcp-server"],
+      "overridePackageName": "containers/charts/kubernetes-mcp-server",
       "registryUrls": ["https://ghcr.io"]
     },
     {
