@@ -1,7 +1,7 @@
 # Workflow pods in this namespace (OpenCode agents, hermes-notify) run
 # untrusted, LLM-driven code. They may reach only what tasks need: DNS, the
 # Kubernetes API (kubectl read-only access and the Argo executor), the Hermes
-# webhook, and the public internet over HTTP(S). Everything else in the
+# webhook, the Seerr MCP server, and the public internet over HTTP(S). Everything else in the
 # cluster, the LAN, and the tailnet is blocked. Nothing may connect in.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -48,6 +48,17 @@ spec:
       ports:
         - protocol: TCP
           port: 8644
+    # Seerr MCP server (k8s/apps/overseerr-mcp).
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: overseerr-mcp
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: overseerr-mcp
+      ports:
+        - protocol: TCP
+          port: 8085
     # GitHub, OpenRouter, package registries, docs.
     - to:
         - ipBlock:

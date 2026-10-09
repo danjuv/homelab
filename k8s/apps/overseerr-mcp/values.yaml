@@ -4,14 +4,15 @@
 # Clients: Open WebUI (External Tools), Hermes (config.values.mcp_servers in
 # k8s/apps/hermes/values.yaml) and OpenCode agents (k8s/apps/opencode/configmap.yaml).
 # The endpoint has no auth; networkpolicy.yaml limits callers to those pods.
-# It can request, approve and delete media with the Seerr admin API key, so
-# restrict who can use the tool in Open WebUI.
+#
+# Read and request only: the MCP server never sees the Seerr API key. It
+# talks to the `proxy` sidecar, which adds the key and allows only GET on the
+# endpoints the tools read, plus POST /request (request_media). The
+# approve/decline/delete actions of manage_media_requests get 403.
 defaultPodOptions:
   automountServiceAccountToken: false
   securityContext:
     runAsNonRoot: true
-    runAsUser: 1001
-    runAsGroup: 1001
     seccompProfile:
       type: RuntimeDefault
 
@@ -24,14 +25,15 @@ controllers:
           tag: 2.3.1
           digest: sha256:54c84625f2040654799ef55fc9864dd8b0d7c725b4e7eb2ea9e2ce8d71f8df1e
         env:
-          SEERR_URL: http://seer-seerr-chart.media.svc.cluster.local
+          SEERR_URL: http://127.0.0.1:8080
+          # Placeholder that passes the server's format check; the proxy
+          # replaces the header with the real key.
+          SEERR_API_KEY: proxy-injects-the-real-key
           HTTP_MODE: "true"
           PORT: "8085"
-        envFrom:
-          # SEERR_API_KEY
-          - secretRef:
-              name: overseerr-mcp
         securityContext:
+          runAsUser: 1001
+          runAsGroup: 1001
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
@@ -62,6 +64,120 @@ controllers:
                 port: 8085
               periodSeconds: 10
               failureThreshold: 3
+      proxy:
+        image:
+          repository: docker.io/nginxinc/nginx-unprivileged
+          tag: 1.31.6-alpine
+          digest: sha256:b9241c6e7b8e9a862f129d8d4199ab64b10390949a78bdd5603379b32c844083
+        envFrom:
+          # SEERR_API_KEY, substituted into the nginx template at startup.
+          - secretRef:
+              name: overseerr-mcp
+        securityContext:
+          runAsUser: 101
+          runAsGroup: 101
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          # worker_processes is auto (one per node CPU) and nginx.conf is
+          # read-only, so leave headroom.
+          limits:
+            memory: 128Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8081
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8081
+              periodSeconds: 10
+              failureThreshold: 3
+
+configMaps:
+  proxy:
+    data:
+      seerr.conf.template: |
+        server {
+          listen 127.0.0.1:8080;
+
+          # Every Seerr endpoint the MCP server calls (src/utils/seerrClient.ts
+          # in v2.3.1). Anything else, including /settings, is refused.
+
+          # List requests (GET) and create them (POST, request_media).
+          location = /api/v1/request {
+            limit_except GET POST {
+              deny all;
+            }
+            proxy_pass http://seer-seerr-chart.media.svc.cluster.local;
+            proxy_set_header Host seer-seerr-chart.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${SEERR_API_KEY}";
+          }
+
+          # Read-only. Approve/decline (POST /request/:id/...) and delete
+          # (DELETE /request/:id) are refused.
+          location ~ ^/api/v1/(search|movie/[0-9]+|tv/[0-9]+|request/[0-9]+|service/(radarr|sonarr)(/[0-9]+)?)$ {
+            limit_except GET {
+              deny all;
+            }
+            proxy_pass http://seer-seerr-chart.media.svc.cluster.local;
+            proxy_set_header Host seer-seerr-chart.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${SEERR_API_KEY}";
+          }
+
+          location / {
+            return 403;
+          }
+        }
+
+        # Kubelet probes (the listener above is loopback-only).
+        server {
+          listen 8081;
+          location = /healthz {
+            access_log off;
+            return 200;
+          }
+          location / {
+            return 404;
+          }
+        }
+
+persistence:
+  proxy-templates:
+    type: configMap
+    identifier: proxy
+    advancedMounts:
+      main:
+        proxy:
+          - path: /etc/nginx/templates
+            readOnly: true
+  proxy-conf:
+    type: emptyDir
+    advancedMounts:
+      main:
+        proxy:
+          - path: /etc/nginx/conf.d
+  proxy-tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        proxy:
+          - path: /tmp
 
 service:
   main:

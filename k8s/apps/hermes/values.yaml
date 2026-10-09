@@ -44,6 +44,11 @@ config:
               deliver: telegram
               deliver_only: true
               prompt: "{message}"
+    # Seerr search and requests (k8s/apps/overseerr-mcp). Its proxy refuses
+    # approve/decline/delete.
+    mcp_servers:
+      seerr:
+        url: http://overseerr-mcp.overseerr-mcp.svc.cluster.local:8085/mcp
 
 secrets:
   existingSecret: hermes-secrets
