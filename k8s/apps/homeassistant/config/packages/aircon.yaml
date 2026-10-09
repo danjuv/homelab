@@ -1,0 +1,73 @@
+# Run the Daikin aircon for a set time. Turning it on resumes its last mode,
+# temperature, fan speed and zones. Run the "Aircon on for..." script from a
+# dashboard, the app or voice; it asks for the duration.
+timer:
+  aircon:
+    name: Aircon timer
+    icon: mdi:timer-outline
+    # Keep counting across Home Assistant restarts.
+    restore: true
+
+script:
+  aircon_on_for:
+    alias: Aircon on for...
+    icon: mdi:air-conditioner
+    mode: restart
+    fields:
+      duration:
+        name: Duration
+        required: true
+        default:
+          hours: 1
+          minutes: 0
+          seconds: 0
+        selector:
+          duration:
+            # Must not be empty ({}): package merging drops empty mappings.
+            enable_second: false
+    sequence:
+      - action: climate.turn_on
+        target:
+          entity_id: climate.daikinap98108
+      - action: timer.start
+        target:
+          entity_id: timer.aircon
+        data:
+          duration: >-
+            {{ '%02d:%02d:%02d' % (duration.hours | default(0) | int,
+                                   duration.minutes | default(0) | int,
+                                   duration.seconds | default(0) | int) }}
+
+automation:
+  - id: aircon_timer_finished
+    alias: Aircon timer finished
+    description: Turns the aircon off when its timer runs out
+    mode: single
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.aircon
+    actions:
+      - action: climate.turn_off
+        target:
+          entity_id: climate.daikinap98108
+
+  - id: aircon_timer_cancel_on_manual_off
+    alias: Cancel aircon timer when turned off
+    description: Stops a running aircon timer if the aircon is switched off some other way
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: climate.daikinap98108
+        to: "off"
+    conditions:
+      - condition: state
+        entity_id: timer.aircon
+        state:
+          - active
+          - paused
+    actions:
+      - action: timer.cancel
+        target:
+          entity_id: timer.aircon
