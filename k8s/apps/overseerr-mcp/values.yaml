@@ -1,0 +1,71 @@
+# Seerr MCP server (Streamable HTTP at
+# http://overseerr-mcp.overseerr-mcp.svc.cluster.local:8085/mcp).
+# https://github.com/jhomen368/overseerr-mcp
+# Clients: Open WebUI (External Tools), Hermes (config.values.mcp_servers in
+# k8s/apps/hermes/values.yaml) and OpenCode agents (k8s/apps/opencode/configmap.yaml).
+# The endpoint has no auth; networkpolicy.yaml limits callers to those pods.
+# It can request, approve and delete media with the Seerr admin API key, so
+# restrict who can use the tool in Open WebUI.
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/jhomen368/overseerr-mcp
+          tag: 2.3.1
+          digest: sha256:54c84625f2040654799ef55fc9864dd8b0d7c725b4e7eb2ea9e2ce8d71f8df1e
+        env:
+          SEERR_URL: http://seer-seerr-chart.media.svc.cluster.local
+          HTTP_MODE: "true"
+          PORT: "8085"
+        envFrom:
+          # SEERR_API_KEY
+          - secretRef:
+              name: overseerr-mcp
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8085
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /health
+                port: 8085
+              periodSeconds: 10
+              failureThreshold: 3
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8085

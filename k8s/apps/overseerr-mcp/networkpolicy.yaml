@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: overseerr-mcp
+  namespace: overseerr-mcp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: overseerr-mcp
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: open-webui
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: open-webui
+              app.kubernetes.io/component: open-webui
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-agent
+        # OpenCode agent pods (k8s/apps/opencode/workflowtemplate.yaml).
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: opencode
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: opencode-task
+      ports:
+        - protocol: TCP
+          port: 8085
