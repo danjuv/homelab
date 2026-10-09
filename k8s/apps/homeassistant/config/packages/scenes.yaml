@@ -1,0 +1,86 @@
+# Migrated from the Docker install's scenes.yaml. IDs are unchanged so the
+# entity IDs referenced by automations (scene.leds_only, ...) carry over.
+# Trimmed to the attributes a light scene applies: state, and for lights
+# that are on, brightness, effect, color_mode and the matching color value.
+scene:
+  - id: "1745568162572"
+    name: Entertainment Room LEDs only
+    icon: mdi:home-lightbulb
+    entities:
+      light.tv_2:
+        state: "off"
+      light.tv_led_1:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: xy
+        xy_color: [0.58233, 0.255421]
+      light.tv_led_2_2:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: xy
+        xy_color: [0.313191, 0.210483]
+      light.stairs_light_2:
+        state: "off"
+
+  - id: "1745674712916"
+    name: Entertainment Room Lights only
+    entities:
+      light.tv_2:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: color_temp
+        color_temp_kelvin: 3521
+      light.stairs_light_2:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: color_temp
+        color_temp_kelvin: 3521
+      light.tv_led_1:
+        state: "off"
+      light.tv_led_2_2:
+        state: "off"
+
+  - id: "1745674748860"
+    name: Entertainment Room all lights
+    entities:
+      light.tv_led_1:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: xy
+        xy_color: [0.58233, 0.255421]
+      light.tv_led_2_2:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: xy
+        xy_color: [0.313191, 0.210483]
+      light.stairs_light_2:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: xy
+        xy_color: [0.46, 0.409]
+      light.tv_2:
+        state: "on"
+        brightness: 254
+        effect: "off"
+        color_mode: xy
+        xy_color: [0.473, 0.409]
+
+  - id: "1745675833330"
+    name: lights off
+    icon: mdi:alarm-light-off
+    entities:
+      light.tv_led_1:
+        state: "off"
+      light.tv_led_2_2:
+        state: "off"
+      light.stairs_light_2:
+        state: "off"
+      light.tv_2:
+        state: "off"
