@@ -8,6 +8,7 @@ controller:
   parallelism: 5
   workflowNamespaces:
     - opencode
+    - media
   workflowDefaults:
     spec:
       serviceAccountName: argo-workflow

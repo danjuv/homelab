@@ -1,0 +1,134 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: kometa
+  namespace: media
+spec:
+  entrypoint: run
+  activeDeadlineSeconds: 21600
+  synchronization:
+    mutexes:
+      - name: kometa
+  arguments:
+    parameters:
+      - name: libraries
+        description: Process only these libraries, pipe-separated (e.g. "Films|TV shows"). Empty = all.
+        value: ""
+      - name: collections
+        description: Process only these collections, pipe-separated. Empty = all.
+        value: ""
+      - name: files
+        description: Process only these collection/overlay files, pipe-separated. Empty = all.
+        value: ""
+      - name: mode
+        description: Restrict the run to one kind of file.
+        value: all
+        enum:
+          - all
+          - collections-only
+          - overlays-only
+          - operations-only
+          - metadata-only
+          - playlists-only
+      - name: ignore_schedules
+        description: Ignore collection schedules.
+        value: "false"
+        enum:
+          - "false"
+          - "true"
+  podMetadata:
+    labels:
+      app.kubernetes.io/name: kometa
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: config
+      persistentVolumeClaim:
+        claimName: kometa
+    - name: seed
+      configMap:
+        name: kometa
+  templates:
+    - name: run
+      automountServiceAccountToken: false
+      retryStrategy:
+        limit: "1"
+        retryPolicy: OnFailure
+      initContainers:
+        - name: render-config
+          image: &image docker.io/kometateam/kometa:v2.5.2@sha256:06e498cded70c9815522c6b2d8708b31759c1e37714746d1eeb56f1e40a8fd95
+          command:
+            - /.venv/bin/python3
+            - /seed/render-config.py
+          env:
+            - name: KOMETA_MAL_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: kometa
+                  key: KOMETA_MAL_REFRESH_TOKEN
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: seed
+              mountPath: /seed
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      container:
+        image: *image
+        command:
+          - /tini
+          - -s
+          - /.venv/bin/python3
+          - kometa.py
+          - --
+        args:
+          - --run
+        env:
+          - name: TZ
+            value: Australia/Sydney
+          - name: KOMETA_RUN_LIBRARIES
+            value: "{{workflow.parameters.libraries}}"
+          - name: KOMETA_RUN_COLLECTIONS
+            value: "{{workflow.parameters.collections}}"
+          - name: KOMETA_RUN_FILES
+            value: "{{workflow.parameters.files}}"
+          - name: KOMETA_COLLECTIONS_ONLY
+            value: "{{=workflow.parameters.mode == 'collections-only'}}"
+          - name: KOMETA_OVERLAYS_ONLY
+            value: "{{=workflow.parameters.mode == 'overlays-only'}}"
+          - name: KOMETA_OPERATIONS_ONLY
+            value: "{{=workflow.parameters.mode == 'operations-only'}}"
+          - name: KOMETA_METADATA_ONLY
+            value: "{{=workflow.parameters.mode == 'metadata-only'}}"
+          - name: KOMETA_PLAYLISTS_ONLY
+            value: "{{=workflow.parameters.mode == 'playlists-only'}}"
+          - name: KOMETA_IGNORE_SCHEDULES
+            value: "{{workflow.parameters.ignore_schedules}}"
+        envFrom:
+          - secretRef:
+              name: kometa
+        volumeMounts:
+          - name: config
+            mountPath: /config
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi

@@ -1,80 +1,6 @@
-defaultPodOptions:
-  automountServiceAccountToken: false
-  securityContext:
-    runAsNonRoot: true
-    runAsUser: 1000
-    runAsGroup: 1000
-    fsGroup: 1000
-    fsGroupChangePolicy: OnRootMismatch
-    seccompProfile:
-      type: RuntimeDefault
-
 controllers:
   main:
-    type: cronjob
-    cronjob:
-      # After Plex's default 02:00-05:00 maintenance window.
-      schedule: "30 5 * * *"
-      timeZone: Australia/Sydney
-      concurrencyPolicy: Forbid
-      backoffLimit: 1
-      # First run with overlays over ~900 films can take a while.
-      activeDeadlineSeconds: 21600
-      successfulJobsHistory: 1
-      failedJobsHistory: 3
-    pod:
-      restartPolicy: Never
-    initContainers:
-      # Kometa rewrites mal.authorization in config.yml whenever it refreshes
-      # the MyAnimeList token, so config.yml lives on the PVC. Re-render it
-      # from the ConfigMap each run, keeping the refreshed MAL tokens unless
-      # the sealed bootstrap token has changed since they were issued.
-      render-config:
-        image: &image
-          repository: docker.io/kometateam/kometa
-          tag: v2.5.2
-          digest: sha256:06e498cded70c9815522c6b2d8708b31759c1e37714746d1eeb56f1e40a8fd95
-        command:
-          - /.venv/bin/python3
-          - /seed/render-config.py
-        env:
-          KOMETA_MAL_REFRESH_TOKEN:
-            valueFrom:
-              secretKeyRef:
-                name: kometa
-                key: KOMETA_MAL_REFRESH_TOKEN
-        securityContext: &securityContext
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-              - ALL
-    containers:
-      main:
-        image: *image
-        args:
-          - --run
-        env:
-          TZ: Australia/Sydney
-        # KOMETA_PLEX_TOKEN, KOMETA_TMDB_APIKEY, KOMETA_MAL_CLIENT_ID,
-        # KOMETA_MAL_CLIENT_SECRET, KOMETA_MAL_ACCESS_TOKEN and
-        # KOMETA_MAL_REFRESH_TOKEN (tools/seal_kometa.sh). Kometa exposes
-        # KOMETA_FOO_BAR as <<FOO_BAR>> in config.yml, except reserved names
-        # such as KOMETA_PLEX_TOKEN (see plex.token below).
-        envFrom:
-          - secretRef:
-              name: kometa
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-              - ALL
-        resources:
-          requests:
-            cpu: 100m
-            memory: 512Mi
-          limits:
-            memory: 2Gi
+    enabled: false
 
 configMaps:
   config:
@@ -173,13 +99,3 @@ persistence:
     accessMode: ReadWriteOnce
     size: 5Gi
     storageClass: longhorn
-    globalMounts:
-      - path: /config
-  seed:
-    type: configMap
-    identifier: config
-    advancedMounts:
-      main:
-        render-config:
-          - path: /seed
-            readOnly: true

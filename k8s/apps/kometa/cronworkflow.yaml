@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: kometa
+  namespace: media
+spec:
+  schedules:
+    - "30 5 * * *"
+  timezone: Australia/Sydney
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  workflowSpec:
+    workflowTemplateRef:
+      name: kometa
