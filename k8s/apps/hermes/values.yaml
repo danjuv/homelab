@@ -63,6 +63,10 @@ config:
         url: https://api.githubcopilot.com/mcp/readonly
         headers:
           Authorization: "Bearer ${GITHUB_MCP_TOKEN}"
+      arr:
+        url: http://arr-mcp.arr-mcp.svc.cluster.local:6060/mcp
+        headers:
+          Authorization: "Bearer ${ARR_MCP_TOKEN}"
 
 secrets:
   existingSecret: hermes-secrets
@@ -76,7 +80,7 @@ extraEnvFrom:
 
 # Increment with SealedSecret changes to reload credentials through GitOps.
 podAnnotations:
-  hermes.home.lab/credentials-revision: "3"
+  hermes.home.lab/credentials-revision: "4"
 
 apiServer:
   enabled: true
