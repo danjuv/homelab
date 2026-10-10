@@ -1,0 +1,61 @@
+# FlareSolverr is an internal helper for Prowlarr only. This policy allows the
+# Prowlarr pod to reach the FlareSolverr HTTP API and lets FlareSolverr resolve
+# DNS and reach the public web with its browser. It is scoped to the
+# FlareSolverr pods, so it does not affect other workloads in the media
+# namespace (which currently has no other NetworkPolicies).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: flaresolverr
+  namespace: media
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: flaresolverr
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: prowlarr
+      ports:
+        - protocol: TCP
+          port: 8191
+  egress:
+    # DNS resolution for indexer hostnames.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Public web, including the Cloudflare-protected indexers and the
+    # start-up browser self-test (TEST_URL, https://www.google.com). Private
+    # ranges, the tailnet and the LAN are excluded. If an indexer is served on
+    # a non-standard port, add it here.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 0.0.0.0/8
+              - 10.0.0.0/8 # pods and services
+              - 100.64.0.0/10 # tailnet
+              - 127.0.0.0/8
+              - 169.254.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16 # LAN
+              - 224.0.0.0/4
+              - 240.0.0.0/4
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
