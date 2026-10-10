@@ -3,8 +3,6 @@ defaultPodOptions:
     runAsNonRoot: true
     runAsUser: 1000
     runAsGroup: 1000
-    fsGroup: 1000
-    fsGroupChangePolicy: OnRootMismatch
     seccompProfile:
       type: RuntimeDefault
 
@@ -31,7 +29,6 @@ controllers:
             cpu: 100m
             memory: 256Mi
           limits:
-            cpu: "1"
             memory: 1Gi
         probes:
           liveness:
