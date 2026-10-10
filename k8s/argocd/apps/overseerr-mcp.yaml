@@ -12,11 +12,11 @@ spec:
       helm:
         releaseName: overseerr-mcp
         valueFiles:
-          - $values/k8s/apps/overseerr-mcp/values.yaml
+          - $values/k8s/apps/mcp/overseerr-mcp/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
       targetRevision: HEAD
       ref: values
-      path: k8s/apps/overseerr-mcp
+      path: k8s/apps/mcp/overseerr-mcp
       directory:
         include: "{networkpolicy.yaml,sealedsecret.yaml}"
   destination:

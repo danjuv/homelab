@@ -12,11 +12,11 @@ spec:
       helm:
         releaseName: arr-mcp
         valueFiles:
-          - $values/k8s/apps/arr-mcp/values.yaml
+          - $values/k8s/apps/mcp/arr-mcp/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
       targetRevision: HEAD
       ref: values
-      path: k8s/apps/arr-mcp
+      path: k8s/apps/mcp/arr-mcp
       directory:
         include: "{networkpolicy.yaml,sealedsecret.yaml}"
   destination:
