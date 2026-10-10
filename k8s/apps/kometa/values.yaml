@@ -1,0 +1,182 @@
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    type: cronjob
+    cronjob:
+      # After Plex's default 02:00-05:00 maintenance window.
+      schedule: "30 5 * * *"
+      timeZone: Australia/Sydney
+      concurrencyPolicy: Forbid
+      backoffLimit: 1
+      # First run with overlays over ~900 films can take a while.
+      activeDeadlineSeconds: 21600
+      successfulJobsHistory: 1
+      failedJobsHistory: 3
+    pod:
+      restartPolicy: Never
+    initContainers:
+      # Kometa rewrites mal.authorization in config.yml whenever it refreshes
+      # the MyAnimeList token, so config.yml lives on the PVC. Re-render it
+      # from the ConfigMap each run, keeping the refreshed MAL tokens unless
+      # the sealed bootstrap token has changed since they were issued.
+      render-config:
+        image: &image
+          repository: docker.io/kometateam/kometa
+          tag: v2.5.2
+          digest: sha256:06e498cded70c9815522c6b2d8708b31759c1e37714746d1eeb56f1e40a8fd95
+        command:
+          - /.venv/bin/python3
+          - /seed/render-config.py
+        env:
+          KOMETA_MAL_REFRESH_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: kometa
+                key: KOMETA_MAL_REFRESH_TOKEN
+        securityContext: &securityContext
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+    containers:
+      main:
+        image: *image
+        args:
+          - --run
+        env:
+          TZ: Australia/Sydney
+        # KOMETA_PLEX_TOKEN, KOMETA_TMDB_APIKEY, KOMETA_MAL_CLIENT_ID,
+        # KOMETA_MAL_CLIENT_SECRET, KOMETA_MAL_ACCESS_TOKEN and
+        # KOMETA_MAL_REFRESH_TOKEN (tools/seal_kometa.sh). Kometa exposes
+        # KOMETA_FOO_BAR as <<FOO_BAR>> in config.yml.
+        envFrom:
+          - secretRef:
+              name: kometa
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+
+configMaps:
+  config:
+    data:
+      config.yml: |
+        libraries:
+          Films:
+            collection_files:
+              - default: imdb
+              - default: myanimelist
+            overlay_files:
+              - default: resolution
+              - default: audio_codec
+          TV shows:
+            collection_files:
+              - default: imdb
+              - default: myanimelist
+            overlay_files:
+              - default: resolution
+        settings:
+          cache: true
+          cache_expiration: 60
+          asset_directory: config/assets
+          asset_folders: true
+          create_asset_folders: false
+          sync_mode: append
+          minimum_items: 1
+          delete_below_minimum: true
+          run_again_delay: 2
+          show_unmanaged: true
+          show_missing: true
+          save_report: false
+          tvdb_language: eng
+          playlist_sync_to_users: all
+          verify_ssl: true
+        plex:
+          # Plex runs on the control-plane host. Its Tailscale IP is not
+          # reachable from pods.
+          url: http://192.168.50.71:32400
+          token: <<PLEX_TOKEN>>
+          timeout: 60
+          clean_bundles: false
+          empty_trash: false
+          optimize: false
+        # Kometa refuses to start without TMDb; it uses it internally to map
+        # IMDb/MAL IDs to Plex items. No TMDb collections are configured.
+        tmdb:
+          apikey: <<TMDB_APIKEY>>
+          language: en
+        mal:
+          client_id: <<MAL_CLIENT_ID>>
+          client_secret: <<MAL_CLIENT_SECRET>>
+          # Bootstrap tokens; render-config keeps Kometa's refreshed ones.
+          authorization:
+            access_token: <<MAL_ACCESS_TOKEN>>
+            token_type: Bearer
+            expires_in: 2678400
+            refresh_token: <<MAL_REFRESH_TOKEN>>
+      render-config.py: |
+        import hashlib
+        import os
+        from pathlib import Path
+
+        from ruamel.yaml import YAML
+
+        yaml = YAML()
+        live = Path("/config/config.yml")
+        marker = Path("/config/.mal-bootstrap")
+        config = yaml.load(Path("/seed/config.yml").read_text())
+        sealed = hashlib.sha256(os.environ["KOMETA_MAL_REFRESH_TOKEN"].encode()).hexdigest()
+
+        auth = None
+        if live.is_file() and marker.is_file() and marker.read_text().strip() == sealed:
+            previous = yaml.load(live.read_text()) or {}
+            auth = (previous.get("mal") or {}).get("authorization")
+            if not auth or str(auth.get("refresh_token", "")).startswith("<<"):
+                auth = None
+        if auth:
+            config["mal"]["authorization"] = auth
+            print("Reusing MAL authorization refreshed by a previous run")
+        else:
+            print("Using sealed MAL bootstrap authorization")
+
+        tmp = live.with_name(".config.yml.tmp")
+        with tmp.open("w") as f:
+            yaml.dump(config, f)
+        tmp.chmod(0o600)
+        tmp.replace(live)
+        marker.write_text(sealed + "\n")
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  seed:
+    type: configMap
+    identifier: config
+    advancedMounts:
+      main:
+        render-config:
+          - path: /seed
+            readOnly: true
