@@ -216,6 +216,10 @@ extraContainers:
     envFrom:
       - secretRef:
           name: hermes-secrets
+      # Dashboard chat connects to MCP servers itself; it needs the same tokens.
+      - secretRef:
+          name: hermes-mcp
+          optional: true
     startupProbe:
       httpGet:
         path: /api/status
