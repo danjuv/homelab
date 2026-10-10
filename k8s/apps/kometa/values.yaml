@@ -18,6 +18,9 @@ configMaps:
                 template_variables:
                   rating1: imdb
                   rating1_image: imdb
+                  # Rotten Tomatoes critic (Tomatometer) fetched via MDBList.
+                  rating2: mdb_tomatoes
+                  rating2_image: rt_tomato
           TV shows:
             collection_files:
               - default: imdb
@@ -60,6 +63,11 @@ configMaps:
         tmdb:
           apikey: <<TMDB_APIKEY>>
           language: en
+        # The Rotten Tomatoes critic rating overlay (rating2: mdb_tomatoes)
+        # is fetched through MDBList and needs an API key; without one Kometa
+        # logs an error and skips that rating while the rest of the run works.
+        mdblist:
+          apikey: <<MDBLIST_APIKEY>>
         mal:
           client_id: <<MAL_CLIENT_ID>>
           client_secret: <<MAL_CLIENT_SECRET>>
