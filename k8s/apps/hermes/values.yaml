@@ -44,17 +44,35 @@ config:
               deliver: telegram
               deliver_only: true
               prompt: "{message}"
-    # Seerr search and requests (k8s/apps/overseerr-mcp). Its proxy refuses
-    # approve/decline/delete.
+    # Same MCP servers as Open WebUI (configured in its admin panel).
     mcp_servers:
+      # Seerr search and requests (k8s/apps/overseerr-mcp). Its proxy refuses
+      # approve/decline/delete.
       seerr:
         url: http://overseerr-mcp.overseerr-mcp.svc.cluster.local:8085/mcp
+      # Read-only cluster view, Secrets denied (k8s/apps/kubernetes-mcp-server).
+      kubernetes:
+        url: http://kubernetes-mcp-server.kubernetes-mcp-server.svc.cluster.local:8080/mcp
+      # Hindsight memory, "homelab" tenant (k8s/apps/hindsight).
+      # Tokens come from hermes-mcp.sealed.yaml (tools/seal_hermes_mcp.sh).
+      hindsight:
+        url: http://hindsight-api.hindsight.svc.cluster.local:8888/mcp/homelab/
+        headers:
+          Authorization: "Bearer ${HINDSIGHT_API_KEY}"
+      github:
+        url: https://api.githubcopilot.com/mcp/readonly
+        headers:
+          Authorization: "Bearer ${GITHUB_MCP_TOKEN}"
 
 secrets:
   existingSecret: hermes-secrets
 extraEnvFrom:
   - secretRef:
       name: hermes-webhook
+  # Optional so the pod still starts before the SealedSecret exists.
+  - secretRef:
+      name: hermes-mcp
+      optional: true
 
 # Increment with SealedSecret changes to reload credentials through GitOps.
 podAnnotations:
