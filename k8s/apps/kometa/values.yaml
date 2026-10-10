@@ -28,12 +28,10 @@ configMaps:
                 template_variables:
                   rating1: imdb
                   rating1_image: imdb
-              # MyAnimeList rating overlay. The built-in "ratings" default
-              # uses IMDb, so this separate file adds the MAL rating and sits
-              # in its own (un-grouped) overlay so it does not compete with the
-              # IMDb one. MAL only has ratings for titles it knows, so the
-              # value_filter leaves series MAL cannot match un-overlaid.
-              - file: config/anime-overlays.yml
+              - default: ratings
+                template_variables:
+                  rating1: mal
+                  rating1_image: mal
         settings:
           cache: true
           cache_expiration: 60
@@ -75,35 +73,6 @@ configMaps:
             token_type: Bearer
             expires_in: 2678400
             refresh_token: <<MAL_REFRESH_TOKEN>>
-      # Custom overlay file mounted at /config by render-config.py and
-      # referenced from the TV shows library via `file: config/anime-overlays.yml`.
-      # Standalone (no overlay group) so it layers on top of the IMDb rating
-      # overlay instead of replacing it. It applies to every series; the
-      # `value_filter` keeps it to those MAL actually has a rating for, since
-      # MAL simply will not match non-anime shows.
-      anime-overlays.yml: |
-        overlays:
-          AnimeMALRating:
-            overlay:
-              name: text(<<mal_rating>>)
-              default: rating/MAL
-              font: fonts/Inter-Bold.ttf
-              font_size: 63
-              font_color: "#FFFFFF"
-              back_color: "#00000099"
-              back_radius: 30
-              back_width: 160
-              back_height: 160
-              back_padding: 15
-              addon_offset: 15
-              addon_position: top
-              horizontal_align: right
-              horizontal_offset: 20
-              vertical_align: bottom
-              vertical_offset: 20
-            plex_all: true
-            value_filter:
-              mal_rating.gte: 0.1
       render-config.py: |
         import hashlib
         import os
