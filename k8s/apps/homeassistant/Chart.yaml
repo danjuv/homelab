@@ -5,5 +5,5 @@ type: application
 version: 0.1.0
 dependencies:
   - name: home-assistant
-    version: 0.3.84
+    version: 0.3.85
     repository: https://pajikos.github.io/home-assistant-helm-chart/
