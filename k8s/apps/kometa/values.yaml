@@ -28,6 +28,11 @@ configMaps:
                 template_variables:
                   rating1: imdb
                   rating1_image: imdb
+              # MyAnimeList rating overlay for anime only. The built-in
+              # "ratings" default cannot be filtered, so this is a separate
+              # file that selects the Anime genre itself and sits in its own
+              # (un-grouped) overlay so it does not compete with the IMDb one.
+              - file: config/anime-overlays.yml
         settings:
           cache: true
           cache_expiration: 60
@@ -69,6 +74,36 @@ configMaps:
             token_type: Bearer
             expires_in: 2678400
             refresh_token: <<MAL_REFRESH_TOKEN>>
+      # Custom overlay file mounted at /config by render-config.py and
+      # referenced from the TV shows library via `file: config/anime-overlays.yml`.
+      # Standalone (no overlay group) so it layers on top of the IMDb rating
+      # overlay instead of replacing it. `filters` is evaluated on Plex
+      # metadata, `value_filter` on the MAL rating fetched at run time.
+      anime-overlays.yml: |
+        overlays:
+          AnimeMALRating:
+            overlay:
+              name: text(<<mal_rating>>)
+              default: rating/MAL
+              font: fonts/Inter-Bold.ttf
+              font_size: 63
+              font_color: "#FFFFFF"
+              back_color: "#00000099"
+              back_radius: 30
+              back_width: 160
+              back_height: 160
+              back_padding: 15
+              addon_offset: 15
+              addon_position: top
+              horizontal_align: right
+              horizontal_offset: 20
+              vertical_align: bottom
+              vertical_offset: 20
+            plex_all: true
+            filters:
+              genre: Anime
+            value_filter:
+              mal_rating.gte: 0.1
       render-config.py: |
         import hashlib
         import os
@@ -100,6 +135,12 @@ configMaps:
         tmp.chmod(0o600)
         tmp.replace(live)
         marker.write_text(sealed + "\n")
+
+        # Copy any other seed YAML (e.g. custom overlay files) into /config.
+        for source in Path("/seed").glob("*.yml"):
+            if source.name != "config.yml":
+                live.with_name(source.name).write_text(source.read_text())
+                print(f"Wrote {source.name} to /config")
 
 persistence:
   config:
