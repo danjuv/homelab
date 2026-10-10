@@ -8,6 +8,13 @@ configMaps:
       config.yml: |
         libraries:
           Films:
+            operations:
+              # Critic rating from IMDb, audience rating from TMDb, and the
+              # Rotten Tomatoes audience score into the Plex user rating
+              # (needs the mdblist block below).
+              mass_critic_rating_update: imdb
+              mass_audience_rating_update: tmdb
+              mass_user_rating_update: mdb_tomatoesaudience
             collection_files:
               - default: imdb
               - default: myanimelist
@@ -19,6 +26,13 @@ configMaps:
                   rating1: imdb
                   rating1_image: imdb
           TV shows:
+            operations:
+              # Critic rating from IMDb, audience rating from TMDb, and the
+              # Rotten Tomatoes audience score into the Plex user rating
+              # (needs the mdblist block below).
+              mass_critic_rating_update: imdb
+              mass_audience_rating_update: tmdb
+              mass_user_rating_update: mdb_tomatoesaudience
             collection_files:
               - default: imdb
               - default: myanimelist
@@ -65,6 +79,13 @@ configMaps:
         tmdb:
           apikey: <<TMDB_APIKEY>>
           language: en
+        # MDBList supplies the Rotten Tomatoes audience score used by the
+        # mass_user_rating_update operations. The KOMETA_MDBLIST_APIKEY secret
+        # key does not exist yet; until it is added Kometa logs a config error
+        # and skips only that operation, leaving the IMDb critic and TMDb
+        # audience updates in place.
+        mdblist:
+          apikey: <<MDBLIST_APIKEY>>
         mal:
           client_id: <<MAL_CLIENT_ID>>
           client_secret: <<MAL_CLIENT_SECRET>>
