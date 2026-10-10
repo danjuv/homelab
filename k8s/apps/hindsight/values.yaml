@@ -3,7 +3,7 @@ fullnameOverride: hindsight
 existingSecret: hindsight-secrets
 
 podAnnotations:
-  hindsight.home.lab/credentials-revision: "1"
+  hindsight.home.lab/credentials-revision: "2"
 
 api:
   env:
