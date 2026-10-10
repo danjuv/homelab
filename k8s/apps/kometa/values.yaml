@@ -28,10 +28,11 @@ configMaps:
                 template_variables:
                   rating1: imdb
                   rating1_image: imdb
-              # MyAnimeList rating overlay for anime only. The built-in
-              # "ratings" default cannot be filtered, so this is a separate
-              # file that selects the Anime genre itself and sits in its own
-              # (un-grouped) overlay so it does not compete with the IMDb one.
+              # MyAnimeList rating overlay. The built-in "ratings" default
+              # uses IMDb, so this separate file adds the MAL rating and sits
+              # in its own (un-grouped) overlay so it does not compete with the
+              # IMDb one. MAL only has ratings for titles it knows, so the
+              # value_filter leaves series MAL cannot match un-overlaid.
               - file: config/anime-overlays.yml
         settings:
           cache: true
@@ -77,8 +78,9 @@ configMaps:
       # Custom overlay file mounted at /config by render-config.py and
       # referenced from the TV shows library via `file: config/anime-overlays.yml`.
       # Standalone (no overlay group) so it layers on top of the IMDb rating
-      # overlay instead of replacing it. `filters` is evaluated on Plex
-      # metadata, `value_filter` on the MAL rating fetched at run time.
+      # overlay instead of replacing it. It applies to every series; the
+      # `value_filter` keeps it to those MAL actually has a rating for, since
+      # MAL simply will not match non-anime shows.
       anime-overlays.yml: |
         overlays:
           AnimeMALRating:
@@ -100,8 +102,6 @@ configMaps:
               vertical_align: bottom
               vertical_offset: 20
             plex_all: true
-            filters:
-              genre: Anime
             value_filter:
               mal_rating.gte: 0.1
       render-config.py: |
