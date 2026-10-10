@@ -5,6 +5,7 @@ controllers:
         image:
           repository: qbittorrentofficial/qbittorrent-nox
           tag: 5.1.4-2
+          digest: sha256:85fe2690f418dabffc4907276b3cdffcb7880c7114157b32f932d3b97bac45af
         env:
           PUID: "1000"
           PGID: "1000"
