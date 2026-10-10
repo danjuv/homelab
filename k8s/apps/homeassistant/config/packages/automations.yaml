@@ -1,9 +1,6 @@
 # Migrated from the Docker install's automations.yaml. IDs are unchanged so
 # entity IDs, traces and history carry over.
 automation:
-  # Motion-sensor lights. Most only turn on when it's dark: below 3 lux on the
-  # motion sensor's own light sensor (off again above the 80 lux default). The
-  # garage light turns on for any motion, regardless of the light level.
   - id: "1745212223168"
     alias: Entrance Sensor Light
     description: Toggles the light in the entrance room based on motion and light level
