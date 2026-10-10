@@ -18,6 +18,8 @@ configMaps:
                 template_variables:
                   rating1: imdb
                   rating1_image: imdb
+                  rating2: mal
+                  rating2_image: mal
           TV shows:
             collection_files:
               - default: imdb
@@ -28,10 +30,8 @@ configMaps:
                 template_variables:
                   rating1: imdb
                   rating1_image: imdb
-              - default: ratings
-                template_variables:
-                  rating1: mal
-                  rating1_image: mal
+                  rating2: mal
+                  rating2_image: mal
         settings:
           cache: true
           cache_expiration: 60
