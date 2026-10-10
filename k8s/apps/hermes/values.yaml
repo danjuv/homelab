@@ -76,7 +76,7 @@ extraEnvFrom:
 
 # Increment with SealedSecret changes to reload credentials through GitOps.
 podAnnotations:
-  hermes.home.lab/credentials-revision: "2"
+  hermes.home.lab/credentials-revision: "3"
 
 apiServer:
   enabled: true
