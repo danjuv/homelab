@@ -59,7 +59,8 @@ controllers:
         # KOMETA_PLEX_TOKEN, KOMETA_TMDB_APIKEY, KOMETA_MAL_CLIENT_ID,
         # KOMETA_MAL_CLIENT_SECRET, KOMETA_MAL_ACCESS_TOKEN and
         # KOMETA_MAL_REFRESH_TOKEN (tools/seal_kometa.sh). Kometa exposes
-        # KOMETA_FOO_BAR as <<FOO_BAR>> in config.yml.
+        # KOMETA_FOO_BAR as <<FOO_BAR>> in config.yml, except reserved names
+        # such as KOMETA_PLEX_TOKEN (see plex.token below).
         envFrom:
           - secretRef:
               name: kometa
@@ -113,7 +114,9 @@ configMaps:
           # Plex runs on the control-plane host. Its Tailscale IP is not
           # reachable from pods.
           url: http://192.168.50.71:32400
-          token: <<PLEX_TOKEN>>
+          # KOMETA_PLEX_TOKEN is reserved by Kometa and is not available as
+          # <<PLEX_TOKEN>>; the literal "env" makes Kometa use it.
+          token: env
           timeout: 60
           clean_bundles: false
           empty_trash: false
