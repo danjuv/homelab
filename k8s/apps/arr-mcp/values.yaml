@@ -114,6 +114,10 @@ configMaps:
   seed:
     data:
       config.yaml: |
+        auth:
+          username: admin
+          allowed_hosts: []
+          tokens: []
         services:
           sonarr:
             url: http://127.0.0.1:18989
