@@ -154,6 +154,12 @@ spec:
               secretKeyRef:
                 name: opencode-secrets
                 key: password
+          - name: ARR_MCP_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: opencode-secrets
+                key: ARR_MCP_TOKEN
+                optional: true
         volumeMounts:
           - name: workspace
             mountPath: /workspace

@@ -19,6 +19,15 @@ data:
           "url": "http://overseerr-mcp.overseerr-mcp.svc.cluster.local:8085/mcp",
           "oauth": false,
           "enabled": true
+        },
+        "arr": {
+          "type": "remote",
+          "url": "http://arr-mcp.arr-mcp.svc.cluster.local:6060/mcp",
+          "headers": {
+            "Authorization": "Bearer {env:ARR_MCP_TOKEN}"
+          },
+          "oauth": false,
+          "enabled": true
         }
       },
       "permission": {
