@@ -18,7 +18,7 @@ spec:
       ref: values
       path: k8s/apps/kometa
       directory:
-        include: "{sealedsecret.yaml,workflowtemplate.yaml,cronworkflow.yaml}"
+        include: "{sealedsecret.yaml,workflowtemplate.yaml,cronworkflow.yaml,rbac.yaml}"
   destination:
     server: https://kubernetes.default.svc
     namespace: media

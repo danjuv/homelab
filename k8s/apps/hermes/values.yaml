@@ -172,12 +172,18 @@ extraVolumes:
         - serviceAccountToken:
             path: token
             expirationSeconds: 3600
+  - name: skill-kometa-runs
+    configMap:
+      name: hermes-skill-kometa-runs
 extraVolumeMounts:
   - name: debitsuccess-credentials
     mountPath: /var/run/secrets/debitsuccess
     readOnly: true
   - name: argo-workflows-token
     mountPath: /var/run/secrets/argo-workflows
+    readOnly: true
+  - name: skill-kometa-runs
+    mountPath: /opt/data/skills/media/kometa-runs
     readOnly: true
 
 # The dashboard/remote Desktop backend shares the gateway's persistent state.

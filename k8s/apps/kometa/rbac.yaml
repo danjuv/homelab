@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hermes-kometa
+  namespace: media
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [workflows]
+    verbs: [create]
+  - apiGroups: [argoproj.io]
+    resources: [workflowtemplates]
+    resourceNames: [kometa]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hermes-kometa
+  namespace: media
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hermes-kometa
+subjects:
+  - kind: ServiceAccount
+    name: hermes
+    namespace: hermes

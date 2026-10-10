@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hermes-skill-kometa-runs
+  namespace: hermes
+data:
+  SKILL.md: |
+    ---
+    name: kometa-runs
+    description: Start a Kometa run on Plex (collections and overlays) via Argo Workflows
+    version: 1.0.0
+    platforms: [linux]
+    metadata:
+      hermes:
+        tags: [media, plex, kometa, argo]
+        category: media
+        requires_toolsets: [terminal]
+    ---
+
+    # Kometa runs
+
+    Kometa builds Plex collections (IMDb and MyAnimeList lists) and poster
+    overlays (resolution, audio codec, IMDb and MAL ratings) for the "Films"
+    and "TV shows" libraries. It runs daily at 05:30 (Australia/Sydney) as an
+    Argo Workflow; this skill starts an extra run. It can't change Kometa's
+    config (k8s/apps/kometa/values.yaml in the homelab repo; use the
+    opencode-tasks skill for that) and can't check on runs.
+
+    ## When to Use
+
+    - The user wants Kometa run now: after adding films or shows, after a
+      config change was merged, or to refresh collections or overlays.
+
+    ## Procedure
+
+    1. Pick the narrowest run that does what the user asked; a full run takes
+       15+ minutes. Parameters (all optional):
+       - `libraries`: `Films`, `TV shows`, or `Films|TV shows`. Empty = all.
+       - `mode`: `all` (default), `collections-only`, `overlays-only`,
+         `operations-only`, `metadata-only`, `playlists-only`.
+       - `collections`, `files`: pipe-separated names. Empty = all.
+       - `ignore_schedules`: `true` only if the user asks to force scheduled
+         collections.
+    2. Submit, listing only the parameters you set. The body goes through a
+       quoted heredoc, so apostrophes are fine; write `"` inside a value as
+       `\"` and leave out braces:
+
+           curl -sS -X POST \
+             http://argo-workflows-server.argo-workflows.svc.cluster.local:2746/api/v1/workflows/media/submit \
+             -H "Authorization: Bearer $(cat /var/run/secrets/argo-workflows/token)" \
+             -H "Content-Type: application/json" \
+             -d @- <<'EOF' | grep -o '"name":"kometa-[a-z0-9]*"\|"message":"\([^"\\]\|\\.\)*"' | head -1
+           {"resourceKind":"WorkflowTemplate","resourceName":"kometa","submitOptions":{"parameters":["libraries=TV shows","mode=overlays-only"]}}
+           EOF
+
+       For a full run send `"submitOptions":{}`.
+    3. The output is the run name (`"name":"kometa-xxxxx"`) or an error
+       message. Tell the user the run started and give the link
+       https://argo-workflows.home.lab/workflows/media/<run name>.
+
+    ## Pitfalls
+
+    - Only one run at a time; a new run waits until the current one finishes.
+    - Use `mode` values exactly as listed. A misspelt mode isn't rejected; it
+      runs everything.
+    - `permission denied` or HTTP 403: Hermes's token or RBAC
+      (k8s/apps/kometa/rbac.yaml) is missing; tell the user.
