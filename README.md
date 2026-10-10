@@ -30,6 +30,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | qBittorrent | Torrent client | [qbt.home.lab](https://qbt.home.lab) |
 | Seer | Media request management | [overseerr.home.lab](https://overseerr.home.lab) |
 | Tautulli | Plex/media server monitoring | [tautulli.home.lab](https://tautulli.home.lab) |
+| Kometa | Plex collection and overlay manager (scheduled batch job) | - |
 | Homepage | Dashboard | [home.lab](https://home.lab) |
 | Home Assistant | Home automation | [homeassistant.home.lab](https://homeassistant.home.lab) |
 
