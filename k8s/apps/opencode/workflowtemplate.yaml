@@ -126,7 +126,9 @@ spec:
           - -c
           - |
             set -o pipefail
-            opencode run --title "${TASK_TITLE:-$TASK_ID}" "$(printf '%s' "$TASK_BRIEF_B64" | base64 -d)" 2>&1 | tee /tmp/opencode.log
+            # Server logs go to stderr so errors like "UnknownError (ref err_...)"
+            # show their cause in the Argo logs; the log file dies with the pod.
+            opencode run --print-logs --log-level WARN --title "${TASK_TITLE:-$TASK_ID}" "$(printf '%s' "$TASK_BRIEF_B64" | base64 -d)" 2>&1 | tee /tmp/opencode.log
             status=$?
             grep -o 'https://github\.com/[A-Za-z0-9_.-]*/[A-Za-z0-9_.-]*/pull/[0-9]*' /tmp/opencode.log | tail -n1 > /tmp/pr_url
             [ -s /tmp/pr_url ] || echo - > /tmp/pr_url
