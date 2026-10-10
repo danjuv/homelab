@@ -1,27 +1,27 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kubernetes-mcp-server
+  name: arr-mcp
   namespace: argocd
 spec:
   project: default
   sources:
-    - chart: kubernetes-mcp-server
-      repoURL: oci://ghcr.io/containers/charts/kubernetes-mcp-server
-      targetRevision: 0.1.0
+    - chart: app-template
+      repoURL: oci://ghcr.io/bjw-s-labs/helm/app-template
+      targetRevision: 5.2.1
       helm:
-        releaseName: kubernetes-mcp-server
+        releaseName: arr-mcp
         valueFiles:
-          - $values/k8s/apps/kubernetes-mcp-server/values.yaml
+          - $values/k8s/apps/mcp/arr-mcp/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
       targetRevision: HEAD
       ref: values
-      path: k8s/apps/kubernetes-mcp-server
+      path: k8s/apps/mcp/arr-mcp
       directory:
-        include: networkpolicy.yaml
+        include: "{networkpolicy.yaml,sealedsecret.yaml}"
   destination:
     server: https://kubernetes.default.svc
-    namespace: kubernetes-mcp-server
+    namespace: arr-mcp
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

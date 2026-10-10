@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: arr-mcp
+  name: overseerr-mcp
   namespace: argocd
 spec:
   project: default
@@ -10,18 +10,18 @@ spec:
       repoURL: oci://ghcr.io/bjw-s-labs/helm/app-template
       targetRevision: 5.2.1
       helm:
-        releaseName: arr-mcp
+        releaseName: overseerr-mcp
         valueFiles:
-          - $values/k8s/apps/arr-mcp/values.yaml
+          - $values/k8s/apps/mcp/overseerr-mcp/values.yaml
     - repoURL: git@github.com:danjuv/homelab.git
       targetRevision: HEAD
       ref: values
-      path: k8s/apps/arr-mcp
+      path: k8s/apps/mcp/overseerr-mcp
       directory:
         include: "{networkpolicy.yaml,sealedsecret.yaml}"
   destination:
     server: https://kubernetes.default.svc
-    namespace: arr-mcp
+    namespace: overseerr-mcp
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
