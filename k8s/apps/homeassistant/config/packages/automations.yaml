@@ -1,8 +1,6 @@
 # Migrated from the Docker install's automations.yaml. IDs are unchanged so
 # entity IDs, traces and history carry over.
 automation:
-  # Motion-sensor lights. All only turn on when it's dark: below 3 lux on the
-  # motion sensor's own light sensor (off again above the 80 lux default).
   - id: "1745212223168"
     alias: Entrance Sensor Light
     description: Toggles the light in the entrance room based on motion and light level
@@ -52,9 +50,6 @@ automation:
           entity_id:
             - light.garage_light_1_2
             - light.garage_light_2_2
-        include_ambient: ambient_enabled
-        ambient_light_sensor: sensor.upstairs_motion_sensor_illuminance_2
-        ambient_light_value: 3
 
   # Was HA's built-in motion_light blueprint (no light-level support); same
   # behaviour on sensor-light: off 2 minutes (its 120s default) after motion stops.
