@@ -9,7 +9,7 @@ data:
   opencode.json: |
     {
       "$schema": "https://opencode.ai/config.json",
-      "model": "openrouter/deepseek/deepseek-v4-pro",
+      "model": "openrouter/deepseek/deepseek-4.1-flash",
       "autoupdate": false,
       "share": "disabled",
       "instructions": ["/etc/opencode-agent/AGENTS.md"],
