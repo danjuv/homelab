@@ -14,12 +14,20 @@ configMaps:
             overlay_files:
               - default: resolution
               - default: audio_codec
+              - default: ratings
+                template_variables:
+                  rating1: imdb
+                  rating1_image: imdb
           TV shows:
             collection_files:
               - default: imdb
               - default: myanimelist
             overlay_files:
               - default: resolution
+              - default: ratings
+                template_variables:
+                  rating1: imdb
+                  rating1_image: imdb
         settings:
           cache: true
           cache_expiration: 60
