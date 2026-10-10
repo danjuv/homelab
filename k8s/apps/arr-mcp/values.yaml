@@ -1,0 +1,260 @@
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    strategy: Recreate
+    initContainers:
+      seed-config:
+        image: &image
+          repository: ghcr.io/bardesss/arr-mcp
+          tag: 1.44.0
+          digest: sha256:f9ac224023d7530456304ae81199c94a109ce5bef8de76860d7c3535b456f96c
+        command:
+          - /bin/sh
+          - -c
+          - "[ -f /config/config.yaml ] || cp /seed/config.yaml /config/config.yaml"
+        securityContext: &securityContext
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+    containers:
+      main:
+        image: *image
+        env:
+          TZ: Australia/Sydney
+        securityContext: *securityContext
+        resources:
+          requests:
+            cpu: 20m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 6060
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 6060
+              periodSeconds: 10
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 6060
+              periodSeconds: 5
+              failureThreshold: 24
+      proxy:
+        image:
+          repository: docker.io/nginxinc/nginx-unprivileged
+          tag: 1.31.6
+          digest: sha256:ce1317316e272062981736063d4a7eed7d80b0d2a53da1305d0752aa4aee7a48
+        envFrom:
+          - secretRef:
+              name: arr-mcp
+        securityContext:
+          runAsUser: 101
+          runAsGroup: 101
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            memory: 128Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8081
+              periodSeconds: 30
+              failureThreshold: 3
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8081
+              periodSeconds: 10
+              failureThreshold: 3
+
+configMaps:
+  seed:
+    data:
+      config.yaml: |
+        services:
+          sonarr:
+            url: http://127.0.0.1:18989
+            api_key: proxy-injects-the-real-key
+          radarr:
+            url: http://127.0.0.1:17878
+            api_key: proxy-injects-the-real-key
+          prowlarr:
+            url: http://127.0.0.1:19696
+            api_key: proxy-injects-the-real-key
+            timeout_ms: 60000
+          qbittorrent:
+            url: http://127.0.0.1:18080
+  proxy:
+    data:
+      arr.conf.template: |
+        proxy_read_timeout 90s;
+
+        server {
+          listen 127.0.0.1:18989;
+          location / {
+            limit_except GET {
+              deny all;
+            }
+            proxy_pass http://sonarr.media.svc.cluster.local:8989;
+            proxy_set_header Host sonarr.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${SONARR_API_KEY}";
+          }
+        }
+
+        server {
+          listen 127.0.0.1:17878;
+          location / {
+            limit_except GET {
+              deny all;
+            }
+            proxy_pass http://radarr.media.svc.cluster.local:7878;
+            proxy_set_header Host radarr.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${RADARR_API_KEY}";
+          }
+        }
+
+        server {
+          listen 127.0.0.1:19696;
+          location / {
+            limit_except GET {
+              deny all;
+            }
+            proxy_pass http://prowlarr.media.svc.cluster.local:9696;
+            proxy_set_header Host prowlarr.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${PROWLARR_API_KEY}";
+          }
+        }
+
+        server {
+          listen 127.0.0.1:18080;
+
+          location / {
+            limit_except GET {
+              deny all;
+            }
+            proxy_pass http://qbittorrent-main.media.svc.cluster.local:8080;
+            proxy_set_header Host qbittorrent-main.media.svc.cluster.local;
+            proxy_set_header Authorization "Bearer ${QBITTORRENT_API_KEY}";
+          }
+
+          location = /api/v2/app/preferences {
+            limit_except GET {
+              deny all;
+            }
+            proxy_pass http://qbittorrent-main.media.svc.cluster.local:8080;
+            proxy_set_header Host qbittorrent-main.media.svc.cluster.local;
+            proxy_set_header Authorization "Bearer ${QBITTORRENT_API_KEY}";
+            proxy_set_header Accept-Encoding "";
+            sub_filter_types application/json;
+            sub_filter_once off;
+            sub_filter "${QBITTORRENT_API_KEY}" "redacted";
+          }
+        }
+
+        server {
+          listen 8081;
+          location = /healthz {
+            access_log off;
+            return 200;
+          }
+          location / {
+            return 404;
+          }
+        }
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    advancedMounts:
+      main:
+        seed-config:
+          - path: /config
+        main:
+          - path: /config
+  seed:
+    type: configMap
+    identifier: seed
+    advancedMounts:
+      main:
+        seed-config:
+          - path: /seed
+            readOnly: true
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /tmp
+  proxy-templates:
+    type: configMap
+    identifier: proxy
+    advancedMounts:
+      main:
+        proxy:
+          - path: /etc/nginx/templates
+            readOnly: true
+  proxy-conf:
+    type: emptyDir
+    advancedMounts:
+      main:
+        proxy:
+          - path: /etc/nginx/conf.d
+  proxy-tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        proxy:
+          - path: /tmp
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 6060
