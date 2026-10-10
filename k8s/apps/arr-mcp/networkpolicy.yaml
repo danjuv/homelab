@@ -10,7 +10,30 @@ spec:
   policyTypes:
     - Ingress
     - Egress
-  ingress: []
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: open-webui
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: open-webui
+              app.kubernetes.io/component: open-webui
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: hermes
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: hermes-agent
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: opencode
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: opencode-task
+      ports:
+        - protocol: TCP
+          port: 6060
   egress:
     - to:
         - namespaceSelector:
