@@ -34,6 +34,15 @@ configMaps:
                   rating1_image: imdb
                   rating2: mal
                   rating2_image: mal
+              # MyAnimeList overlay for season posters, in addition to the
+              # show-level overlay above. The built-in "ratings" default cannot
+              # do seasons: its run_this rule skips every source except `user`
+              # and `tmdb` at season level, and the direct `mal` source is not
+              # defined for seasons at all. The season-level MyAnimeList score
+              # is reachable through MDBList as `mdb_myanimelist_rating`, so this is a
+              # standalone overlay (no group) that layers the MAL badge onto
+              # seasons that have one.
+              - file: config/season-overlays.yml
         settings:
           cache: true
           cache_expiration: 60
@@ -118,6 +127,37 @@ configMaps:
             if source.name != "config.yml":
                 live.with_name(source.name).write_text(source.read_text())
                 print(f"Wrote {source.name} to /config")
+      # Custom overlay file copied to /config by render-config.py and pulled
+      # into the TV shows library via `file: config/season-overlays.yml`.
+      # Standalone (no overlay group) so it layers on top of the show-level
+      # rating overlays instead of replacing them. `builder_level: season`
+      # reads the parent show's MyAnimeList score through MDBList, because the
+      # direct `mal` source is not defined at season level; value_filter drops
+      # seasons whose show has no MyAnimeList score.
+      season-overlays.yml: |
+        overlays:
+          SeasonMALRating:
+            builder_level: season
+            overlay:
+              name: text(<<mdb_myanimelist_rating>>)
+              default: rating/MAL
+              font: fonts/Inter-Bold.ttf
+              font_size: 63
+              font_color: "#FFFFFF"
+              back_color: "#00000099"
+              back_radius: 30
+              back_width: 160
+              back_height: 160
+              back_padding: 15
+              addon_offset: 15
+              addon_position: top
+              horizontal_align: right
+              horizontal_offset: 20
+              vertical_align: bottom
+              vertical_offset: 20
+            plex_all: true
+            value_filter:
+              mdb_myanimelist_rating.gte: 0.1
 
 persistence:
   config:
