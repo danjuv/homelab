@@ -1,25 +1,4 @@
 #!/usr/bin/env python3
-"""Validate the Homepage dashboard configuration without a cluster.
-
-Homepage's chart renders `config.*` from k8s/apps/homepage/values.yaml into
-the services.yaml / widgets.yaml / settings.yaml / kubernetes.yaml config
-files. This script checks that configuration against the deployed Homepage
-version (v2.5.0) and the rest of the repository:
-
-  * every `config.*` file round-trips through YAML;
-  * every service has an `icon` and an `href`;
-  * every `href` hostname is declared by another manifest in this repo;
-  * every `{{HOMEPAGE_VAR_*}}` reference has a SealedSecret key;
-  * info widgets and the service widgets in use only carry options the
-    deployed Homepage understands;
-  * every layout group names a real service group.
-
-Pass `--check-icons` to also resolve each icon in the same CDN sets the
-deployed Homepage uses (requires network; skipped offline).
-
-Usage:
-    python3 tools/validate_homepage.py [--check-icons]
-"""
 
 import argparse
 import re
@@ -39,8 +18,6 @@ CONFIG_FILES = ("bookmarks", "services", "widgets", "settings", "kubernetes", "d
 VAR_REF = re.compile(r"\{\{(HOMEPAGE_VAR_[A-Z0-9_]+)\}\}")
 HOSTNAME = re.compile(r"\b[a-z0-9][a-z0-9.-]*\.home\.lab\b")
 
-# Options accepted by the info widgets used in config.widgets, pinned to the
-# deployed Homepage version (src/components/widgets, v2.5.0).
 INFO_WIDGETS = {
     "resources": {
         "expanded", "cpu", "memory", "disk", "network", "cputemp", "tempmin",
@@ -51,8 +28,6 @@ INFO_WIDGETS = {
     "search": {"provider", "focus", "showSearchSuggestions", "target", "url", "suggestionUrl"},
 }
 
-# Required and accepted options for the service widgets in use, pinned to the
-# deployed Homepage version (docs/widgets/services, v2.5.0).
 SERVICE_WIDGETS = {
     "sonarr": ({"url", "key"}, {"enableQueue"}),
     "radarr": ({"url", "key"}, {"enableQueue"}),
@@ -75,7 +50,6 @@ def load_yaml(path):
 
 
 def round_trip(value, label):
-    """The chart serialises config.* to YAML; make sure that stays valid."""
     try:
         yaml.safe_load(yaml.safe_dump(value))
     except yaml.YAMLError as error:
@@ -83,8 +57,6 @@ def round_trip(value, label):
 
 
 def repo_hostnames():
-    """Every `*.home.lab` hostname declared by a tracked manifest, except
-    Homepage's own hrefs (which are what we are checking)."""
     names = set()
     for path in ROOT.glob("k8s/**/*.yaml"):
         if path.resolve() == VALUES.resolve():
@@ -98,7 +70,6 @@ def repo_hostnames():
 
 
 def service_entries(services):
-    """Yield (group, name, spec) triples from config.services."""
     if not isinstance(services, list):
         raise Error("config.services must be a list of groups")
     for group in services:
@@ -147,8 +118,6 @@ def check_service_widget(name, widget, errors):
         errors.append(f"service {name!r} widget has no type")
         return
     if kind not in SERVICE_WIDGETS:
-        # A widget this script does not know about: keep the check honest
-        # rather than guessing its schema.
         return
     required, optional = SERVICE_WIDGETS[kind]
     keys = set(widget)
@@ -200,15 +169,12 @@ def check_secrets(text, sealed, errors):
     missing = wanted - keys
     if missing:
         errors.append(f"references to HOMEPAGE_VAR_* without a SealedSecret key: {sorted(missing)}")
-    # An extra SealedSecret key is not an error: sealing a value ahead of the
-    # service that uses it is a normal order of operations.
     unused = keys - wanted
     if unused:
         print(f"note: SealedSecret keys with no service references: {sorted(unused)}")
 
 
 def icon_url(icon):
-    """Mirror src/components/resolvedicon.jsx from Homepage v2.5.0."""
     if icon.startswith("http") or icon.startswith("/"):
         return icon
     if icon.split("-")[0] == "sh":
@@ -244,7 +210,7 @@ def check_icons(config, errors):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser()
     parser.add_argument("--check-icons", action="store_true", help="resolve icons over the network")
     args = parser.parse_args()
 
@@ -265,7 +231,6 @@ def main():
     check_widgets(config, errors)
     check_layout(config, groups, errors)
 
-    # Every config file is serialised together, so scan them as one blob.
     check_secrets(yaml.safe_dump(config), load_yaml(SEALED), errors)
 
     if args.check_icons:
