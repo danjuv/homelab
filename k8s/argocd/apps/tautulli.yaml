@@ -8,7 +8,7 @@ spec:
   sources:
     - chart: tautulli
       repoURL: oci://oci.trueforge.org/truecharts/tautulli
-      targetRevision: 22.12.1
+      targetRevision: 23.0.0
       helm:
         valueFiles:
           - $values/k8s/apps/tautulli/values.yaml
