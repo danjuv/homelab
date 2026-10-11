@@ -55,8 +55,9 @@ service is a single-key map:
 
 `config.widgets` is a list of single-key maps rendered above the services. Its
 options must match the deployed Homepage version (currently `v2.5.0`, set by
-the `image.tag` above); unknown options are silently ignored by Homepage, so
-check `src/components/widgets` upstream before adding one.
+the `image.tag` above); Homepage silently ignores options it does not know, so
+`tools/validate_homepage.py` checks the info widgets and the service widgets in
+use against that version.
 
 Layout groups in `config.settings.layout` must each name a group defined in
 `config.services`.

@@ -200,9 +200,11 @@ def check_secrets(text, sealed, errors):
     missing = wanted - keys
     if missing:
         errors.append(f"references to HOMEPAGE_VAR_* without a SealedSecret key: {sorted(missing)}")
+    # An extra SealedSecret key is not an error: sealing a value ahead of the
+    # service that uses it is a normal order of operations.
     unused = keys - wanted
     if unused:
-        errors.append(f"SealedSecret keys no service references: {sorted(unused)}")
+        print(f"note: SealedSecret keys with no service references: {sorted(unused)}")
 
 
 def icon_url(icon):
