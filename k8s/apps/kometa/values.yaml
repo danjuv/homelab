@@ -20,6 +20,8 @@ configMaps:
                   rating1_image: imdb
                   rating2: mal
                   rating2_image: mal
+                  rating3: mdb_tomatoes
+                  rating3_image: rt_tomato
           TV shows:
             collection_files:
               - default: imdb
@@ -73,6 +75,12 @@ configMaps:
             token_type: Bearer
             expires_in: 2678400
             refresh_token: <<MAL_REFRESH_TOKEN>>
+        # Supplies the Rotten Tomatoes critic rating (mdb_tomatoes) shown in
+        # rating3 of the Films ratings overlay. Key is already sealed in the
+        # kometa SealedSecret as KOMETA_MDBLIST_APIKEY.
+        mdblist:
+          apikey: <<MDBLIST_APIKEY>>
+          cache_expiration: 60
       render-config.py: |
         import hashlib
         import os
