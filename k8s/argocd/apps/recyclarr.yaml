@@ -18,7 +18,7 @@ spec:
       ref: values
       path: k8s/apps/recyclarr
       directory:
-        include: "{workflowtemplate.yaml,cronworkflow.yaml,sealedsecret.yaml}"
+        include: "{workflowtemplate.yaml,sealedsecret.yaml}"
   destination:
     server: https://kubernetes.default.svc
     namespace: media
