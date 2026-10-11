@@ -28,22 +28,27 @@ config:
             icon: sonarr.png
             href: https://sonarr.home.lab
             description: TV Shows
+            siteMonitor: http://sonarr.media:8989/ping
             widget:
               type: sonarr
               url: http://sonarr.media:8989
               key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
+              enableQueue: true
         - Radarr:
             icon: radarr.png
             href: https://radarr.home.lab
             description: Movies
+            siteMonitor: http://radarr.media:7878/ping
             widget:
               type: radarr
               url: http://radarr.media:7878
               key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
+              enableQueue: true
         - Prowlarr:
             icon: prowlarr.png
             href: https://prowlarr.home.lab
-            description: Indexer Manager
+            description: Indexers
+            siteMonitor: http://prowlarr.media:9696/ping
             widget:
               type: prowlarr
               url: http://prowlarr.media:9696
@@ -52,42 +57,96 @@ config:
             icon: qbittorrent.png
             href: https://qbt.home.lab
             description: Downloads
+            siteMonitor: http://qbittorrent-main.media:8080/
             widget:
               type: qbittorrent
               url: http://qbittorrent-main.media:8080
               username: "{{HOMEPAGE_VAR_QBITTORRENT_USER}}"
               password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
-    - Monitoring:
-        - Tautulli:
-            icon: tautulli.png
-            href: https://tautulli.home.lab
-            description: Plex Monitoring
-            widget:
-              type: tautulli
-              url: http://tautulli.media:8181
-              key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
+              enableLeechProgress: true
         - Seerr:
             icon: seerr.png
             href: https://overseerr.home.lab
             description: Media Requests
+            siteMonitor: http://seer-seerr-chart.media/
             widget:
               type: seerr
               url: http://seer-seerr-chart.media:80
               key: "{{HOMEPAGE_VAR_SEERR_KEY}}"
+        - Tautulli:
+            icon: tautulli.png
+            href: https://tautulli.home.lab
+            description: Plex Monitoring
+            siteMonitor: http://tautulli.media:8181/
+            widget:
+              type: tautulli
+              url: http://tautulli.media:8181
+              key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
+        - Kometa:
+            icon: kometa.png
+            href: https://argo-workflows.home.lab/workflows/media
+            description: Plex metadata & collections
     - Infrastructure:
         - ArgoCD:
             icon: argo-cd.png
             href: https://argocd.home.lab
             description: GitOps
+            siteMonitor: https://argo-cd-argocd-server.argocd
+            widget:
+              type: argocd
+              url: https://argo-cd-argocd-server.argocd
+              key: "{{HOMEPAGE_VAR_ARGOCD_KEY}}"
         - Longhorn:
             icon: longhorn.png
             href: https://longhorn.home.lab
             description: Storage
+            siteMonitor: http://longhorn-frontend.longhorn-system:80/
+        - ingress-nginx:
+            icon: nginx.png
+            description: Ingress controller
+        - MetalLB:
+            icon: metallb.png
+            description: Load balancer
+        - cert-manager:
+            icon: cert-manager.png
+            description: TLS certificates
+            siteMonitor: http://cert-manager.cert-manager:9402/metrics
+    - Home:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://homeassistant.home.lab
+            description: Home automation
+            siteMonitor: http://homeassistant-home-assistant.homeassistant:8080/
+            widget:
+              type: homeassistant
+              url: http://homeassistant-home-assistant.homeassistant:8080
+              key: "{{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}"
+    - Development:
+        - OpenCode Tasks:
+            icon: opencode.png
+            href: https://argo-workflows.home.lab/workflows/opencode
+            description: Coding agent (Argo Workflows)
+            siteMonitor: http://argo-workflows-server.argo-workflows:2746/
+        - mcp-arr:
+            icon: mcp.png
+            description: Read-only MCP server for *arr
+            siteMonitor: http://arr-mcp.arr-mcp:6060/healthz
   widgets:
     - resources:
         expanded: true
         cpu: true
         memory: true
+        disk: /
+    - search:
+        provider: google
+        target: _blank
+    - openmeteo:
+        label: Sydney
+        latitude: -33.8688
+        longitude: 151.2093
+        timezone: Australia/Sydney
+        units: metric
+        cache: 5
     - kubernetes:
         cluster:
           show: true
@@ -105,25 +164,29 @@ config:
         total: true
         labels: true
         nodes: true
-    - search:
-        provider: google
-        target: _blank
   kubernetes:
     mode: cluster
   settings:
+    title: Homelab
+    headerStyle: clean
+    theme: dark
+    color: slate
+    statusStyle: dot
+    useEqualHeights: true
     providers:
       longhorn:
         url: http://longhorn-frontend.longhorn-system:80
-    title: Homelab
-    headerStyle: clean
     layout:
       Media:
         style: row
         columns: 4
-      Monitoring:
+      Infrastructure:
+        style: row
+        columns: 3
+      Home:
         style: row
         columns: 2
-      Infrastructure:
+      Development:
         style: row
         columns: 2
 
