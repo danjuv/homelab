@@ -22,6 +22,9 @@ ingress:
 
 config:
   bookmarks: []
+  # One group per domain. `href` is the public HTTPS ingress host from the
+  # app's own values file; `widget.url` and `providers` stay on in-cluster
+  # Service DNS and must not be rewritten to the public host. See README.md.
   services:
     - Media:
         - Sonarr:
@@ -57,7 +60,17 @@ config:
               url: http://qbittorrent-main.media:8080
               username: "{{HOMEPAGE_VAR_QBITTORRENT_USER}}"
               password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
-    - Monitoring:
+        # The app is called Seerr now, but its ingress host is still
+        # overseerr.home.lab (k8s/apps/seer/values.yaml). Keep the href on the
+        # real host; only the display name and icon were renamed.
+        - Seerr:
+            icon: seerr.png
+            href: https://overseerr.home.lab
+            description: Media Requests
+            widget:
+              type: seerr
+              url: http://seer-seerr-chart.media:80
+              key: "{{HOMEPAGE_VAR_SEERR_KEY}}"
         - Tautulli:
             icon: tautulli.png
             href: https://tautulli.home.lab
@@ -66,29 +79,43 @@ config:
               type: tautulli
               url: http://tautulli.media:8181
               key: "{{HOMEPAGE_VAR_TAUTULLI_KEY}}"
-        - Overseerr:
-            icon: overseerr.png
-            href: https://overseerr.home.lab
-            description: Media Requests
-            widget:
-              type: seerr
-              url: http://seer-seerr-chart.media:80
-              key: "{{HOMEPAGE_VAR_SEERR_KEY}}"
+    - Home:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://homeassistant.home.lab
+            description: Home Automation
+    - AI:
+        - Open WebUI:
+            icon: open-webui.png
+            href: https://chat.home.lab
+            description: AI Chat
+        - Hermes:
+            icon: sh-hermes-agent
+            href: https://hermes.home.lab
+            description: AI Agent
+        - Hindsight:
+            icon: hindsight.png
+            href: https://hindsight.home.lab
+            description: Agent Memory
     - Infrastructure:
         - ArgoCD:
-            icon: sh-argocd
+            icon: argo-cd.png
             href: https://argocd.home.lab
             description: GitOps
+        - Argo Workflows:
+            icon: si-argo
+            href: https://argo-workflows.home.lab
+            description: Workflow Engine
+        - Kargo:
+            href: https://kargo.home.lab
+            description: Release Promotion
         - Longhorn:
             icon: longhorn.png
             href: https://longhorn.home.lab
             description: Storage
   widgets:
-    - resources:
-        backend: kubernetes
-        expanded: true
-        cpu: true
-        memory: true
+    # `kubernetes` already reports cluster and per-node CPU/memory, so the
+    # separate `resources` widget (also backend: kubernetes) was redundant.
     - kubernetes:
         cluster:
           show: true
@@ -117,16 +144,21 @@ config:
         url: http://longhorn-frontend.longhorn-system:80
     title: Homelab
     headerStyle: clean
+    useEqualHeights: true
     layout:
+      # Media has six cards; three columns lay them out as two even rows.
       Media:
         style: row
-        columns: 4
-      Monitoring:
+        columns: 3
+      Home:
         style: row
-        columns: 2
+        columns: 4
+      AI:
+        style: row
+        columns: 4
       Infrastructure:
         style: row
-        columns: 2
+        columns: 4
 
 envFrom:
   - secretRef:
