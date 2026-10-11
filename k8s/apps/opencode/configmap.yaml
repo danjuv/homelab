@@ -1,5 +1,10 @@
 # Files for the OpenCode agent, mounted at /etc/opencode-agent (and gitconfig
 # at $HOME/.gitconfig) by the opencode-task WorkflowTemplate.
+#
+# Don't set `steps` on an agent: OpenCode 1.18 sends the step-cap notice as a
+# trailing assistant message, which Claude 4.6+ rejects with "does not support
+# assistant message prefill" (anomalyco/opencode#32548). The workflow timeout
+# bounds runtime instead.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -36,7 +41,6 @@ data:
           "mode": "subagent",
           "model": "openrouter/anthropic/claude-sonnet-4.6",
           "prompt": "{file:/etc/opencode-agent/reviewer.md}",
-          "steps": 50,
           "permission": {
             "edit": "deny",
             "task": "deny",
@@ -174,6 +178,10 @@ data:
        `helm show values <chart> --version <v>`. `kubectl get`/`describe` is
        available (read-only, no Secrets) to compare with live state.
     4. Write the report in the format below and stop.
+
+    Be economical: issue independent tool calls together in one turn, read
+    the changed files and their direct neighbours only, and skip
+    exploration that cannot change the verdict.
 
     ## What to check
 
