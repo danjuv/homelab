@@ -1,0 +1,80 @@
+controllers:
+  main:
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+    containers:
+      main:
+        image:
+          repository: ghcr.io/autobrr/autobrr
+          tag: v1.88.0
+          digest: sha256:e200008d43fe6cd2d944c9bcf20900cfb8ba8a8e509625bb78ee51910b994005
+        env:
+          TZ: "Australia/Sydney"
+          AUTOBRR__HOST: "0.0.0.0"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthz/liveness
+                port: 7474
+              periodSeconds: 30
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthz/readiness
+                port: 7474
+              periodSeconds: 10
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/healthz/readiness
+                port: 7474
+              periodSeconds: 5
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 7474
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: autobrr-homelab-tls
+        hosts:
+          - autobrr.home.lab
+    hosts:
+      - host: autobrr.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
