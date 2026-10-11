@@ -215,3 +215,25 @@ data:
     - [should-fix] ...
     - [nit] ...
     Validation: <commands you ran and their result>
+  cost.py: |
+    #!/usr/bin/env python3
+    """Print this task's LLM cost from OpenCode's session database, split by agent.
+
+    Run after `opencode run` exits; the database lives in the pod's emptyDir and
+    is gone once the pod terminates.
+    """
+    import os
+    import sqlite3
+
+    db = os.path.expanduser("~/.local/share/opencode/opencode.db")
+    try:
+        rows = sqlite3.connect(db).execute(
+            "select agent, count(*), coalesce(sum(cost), 0) from session group by agent order by 3 desc"
+        ).fetchall()
+    except sqlite3.Error:
+        rows = []
+    if not rows:
+        print("-")
+    else:
+        parts = ", ".join(f"{agent or '?'} ${cost:.2f}" + (f" x{n}" if n > 1 else "") for agent, n, cost in rows)
+        print(f"${sum(r[2] for r in rows):.2f} ({parts})")

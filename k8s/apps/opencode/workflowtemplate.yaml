@@ -66,6 +66,7 @@ spec:
                   value: |-
                     {{=workflow.status == 'Succeeded' ? 'OpenCode task done' : 'OpenCode task ' + lower(workflow.status)}}: {{workflow.parameters.title}}
                     Task: {{workflow.name}}
+                    Cost: {{=workflow.outputs.parameters.cost ?? '-'}}
                     {{=(workflow.outputs.parameters.pr_url ?? '-') != '-' ? 'PR: ' + workflow.outputs.parameters.pr_url : 'No PR. Details: https://argo-workflows.home.lab/workflows/opencode/' + workflow.name}}
     - name: run
       activeDeadlineSeconds: "{{workflow.parameters.timeout}}"
@@ -76,6 +77,12 @@ spec:
             globalName: pr_url
             valueFrom:
               path: /tmp/pr_url
+          # LLM spend per agent (build/reviewer) from OpenCode's session database.
+          - name: cost
+            globalName: cost
+            valueFrom:
+              path: /tmp/cost
+              default: "-"
       initContainers:
         - name: clone
           image: &image ghcr.io/danjuv/opencode:1.18.35@sha256:057549c5861a6026f5dbbde25311da5fc7e9ae1a798b038e275be97f9947d897
@@ -132,6 +139,8 @@ spec:
             status=$?
             grep -o 'https://github\.com/[A-Za-z0-9_.-]*/[A-Za-z0-9_.-]*/pull/[0-9]*' /tmp/opencode.log | tail -n1 > /tmp/pr_url
             [ -s /tmp/pr_url ] || echo - > /tmp/pr_url
+            python3 /etc/opencode-agent/cost.py > /tmp/cost 2>/dev/null || echo - > /tmp/cost
+            echo "cost: $(cat /tmp/cost)"
             exit $status
         env:
           - name: HOME
