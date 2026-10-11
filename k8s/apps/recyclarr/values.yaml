@@ -1,0 +1,95 @@
+controllers:
+  main:
+    type: cronjob
+    cronjob:
+      schedule: "0 4 * * *"
+      timeZone: Australia/Sydney
+      concurrencyPolicy: Forbid
+      startingDeadlineSeconds: 3600
+      successfulJobsHistory: 1
+      failedJobsHistory: 3
+    pod:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+    initContainers:
+      seed-config:
+        image: &image
+          repository: docker.io/recyclarr/recyclarr
+          tag: 8.7.3
+          digest: sha256:44687fb23d288bdc3b5a7279cf5e78cdf1ebe385afdeda650ec88d44224eca85
+        command:
+          - /bin/sh
+          - -c
+          - cp /seed/recyclarr.yml /config/recyclarr.yml
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+    containers:
+      main:
+        image: *image
+        args:
+          - sync
+        env:
+          TZ: Australia/Sydney
+        envFrom:
+          - secretRef:
+              name: recyclarr
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+
+configMaps:
+  seed:
+    data:
+      recyclarr.yml: |
+        sonarr:
+          sonarr:
+            base_url: http://sonarr.media.svc.cluster.local:8989
+            api_key: !env_var SONARR_API_KEY
+            quality_definition:
+              type: series
+            quality_profiles:
+              - trash_id: 72dae194fc92bf828f32cde7744e51a1
+                reset_unmatched_scores:
+                  enabled: true
+        radarr:
+          radarr:
+            base_url: http://radarr.media.svc.cluster.local:7878
+            api_key: !env_var RADARR_API_KEY
+            quality_definition:
+              type: movie
+            quality_profiles:
+              - trash_id: d1d67249d3890e49bc12e275d989a7e9
+                reset_unmatched_scores:
+                  enabled: true
+
+persistence:
+  config:
+    type: emptyDir
+    advancedMounts:
+      main:
+        seed-config:
+          - path: /config
+        main:
+          - path: /config
+  seed:
+    type: configMap
+    identifier: seed
+    advancedMounts:
+      main:
+        seed-config:
+          - path: /seed
+            readOnly: true
