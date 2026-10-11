@@ -13,7 +13,7 @@ controllers:
           digest: sha256:e200008d43fe6cd2d944c9bcf20900cfb8ba8a8e509625bb78ee51910b994005
         env:
           TZ: "Australia/Sydney"
-          AUTOBRR_HOST: "0.0.0.0"
+          AUTOBRR__HOST: "0.0.0.0"
         probes:
           liveness:
             enabled: true
