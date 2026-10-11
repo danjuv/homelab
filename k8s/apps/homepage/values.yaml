@@ -22,9 +22,6 @@ ingress:
 
 config:
   bookmarks: []
-  # One group per domain. `href` is the public HTTPS ingress host from the
-  # app's own values file; `widget.url` and `providers` stay on in-cluster
-  # Service DNS and must not be rewritten to the public host. See README.md.
   services:
     - Media:
         - Sonarr:
@@ -60,9 +57,6 @@ config:
               url: http://qbittorrent-main.media:8080
               username: "{{HOMEPAGE_VAR_QBITTORRENT_USER}}"
               password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
-        # The app is called Seerr now, but its ingress host is still
-        # overseerr.home.lab (k8s/apps/seer/values.yaml). Keep the href on the
-        # real host; only the display name and icon were renamed.
         - Seerr:
             icon: seerr.png
             href: https://overseerr.home.lab
@@ -114,8 +108,6 @@ config:
             href: https://longhorn.home.lab
             description: Storage
   widgets:
-    # `kubernetes` already reports cluster and per-node CPU/memory, so the
-    # separate `resources` widget (also backend: kubernetes) was redundant.
     - kubernetes:
         cluster:
           show: true
@@ -146,7 +138,6 @@ config:
     headerStyle: clean
     useEqualHeights: true
     layout:
-      # Media has six cards; three columns lay them out as two even rows.
       Media:
         style: row
         columns: 3

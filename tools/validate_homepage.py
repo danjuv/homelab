@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""Fast, network-free checks for the Homepage dashboard config.
-
-Validates the hand-written ``k8s/apps/homepage/values.yaml`` against the rest
-of the repository (the source of truth for ingress hosts) and its
-SealedSecret. It does not render Helm or talk to a cluster; use
-``tools/validate_k8s.py`` for that.
-"""
 
 import re
 import sys
@@ -29,7 +22,6 @@ def load(path):
 
 
 def walk(value):
-    """Yield every string leaf under a nested dict/list value."""
     if isinstance(value, dict):
         for item in value.values():
             yield from walk(item)
@@ -41,7 +33,6 @@ def walk(value):
 
 
 def ingress_text():
-    """Concatenated text of every tracked k8s file except this app's own."""
     chunks = []
     for path in sorted((ROOT / "k8s").rglob("*")):
         if path.suffix not in {".yaml", ".yml"}:
@@ -65,7 +56,6 @@ def main():
     settings = config.get("settings") or {}
     layout = settings.get("layout") or {}
 
-    # --- Groups are non-empty, single-key, and match the layout block. ---
     declared_groups = []
     for entry in services:
         if not isinstance(entry, dict) or len(entry) != 1:
@@ -81,7 +71,6 @@ def main():
         if group not in declared_groups:
             errors.append(f"settings.layout group {group!r} has no services")
 
-    # --- Each card has a valid, repository-backed public href. ---
     hosts_text = ingress_text()
     names = Counter()
     for entry in services:
@@ -116,7 +105,6 @@ def main():
         if count > 1:
             errors.append(f"duplicate service name {name!r} ({count} cards)")
 
-    # --- Widget credentials must be placeholders, never plaintext. ---
     for entry in services:
         if not isinstance(entry, dict) or len(entry) != 1:
             continue
@@ -139,7 +127,6 @@ def main():
                             f"{{{{HOMEPAGE_VAR_*}}}} placeholder, not {value!r}"
                         )
 
-    # --- Every referenced placeholder resolves to a sealed key. ---
     referenced = set()
     for value in walk(config):
         referenced.update(PLACEHOLDER.findall(value))
