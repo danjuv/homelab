@@ -149,6 +149,12 @@ data:
       a task needs one, list the required keys in the PR.
     - `kubectl` is read-only (no Secrets). Use it to inspect live state when
       debugging; never try to change the cluster directly.
+    - Never add or modify README entries unless the task explicitly asks for
+      documentation. The README describes what a service is; it is not a
+      changelog for your change.
+    - Keep code comments extremely concise: only when absolutely necessary,
+      and a few words at most. No verbose or explanatory comments, no comment
+      blocks, no inline documentation, unless the task explicitly asks for it.
   reviewer.md: |
     # Reviewer
 
