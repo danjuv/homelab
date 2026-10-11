@@ -1,0 +1,77 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: recyclarr
+  namespace: media
+spec:
+  entrypoint: run
+  activeDeadlineSeconds: 3600
+  synchronization:
+    mutexes:
+      - name: recyclarr
+  podMetadata:
+    labels:
+      app.kubernetes.io/name: recyclarr
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: config
+      emptyDir: {}
+    - name: seed
+      configMap:
+        name: recyclarr
+  templates:
+    - name: run
+      automountServiceAccountToken: false
+      retryStrategy:
+        limit: "1"
+        retryPolicy: OnFailure
+      initContainers:
+        - name: seed-config
+          image: &image docker.io/recyclarr/recyclarr:8.7.3@sha256:9c6c74d52cfc6f740a5a3624aa83867e171bb70b90453ddb7a4048b8c80445f9
+          command:
+            - /bin/sh
+            - -c
+            - cp /seed/recyclarr.yml /config/recyclarr.yml
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: seed
+              mountPath: /seed
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      container:
+        image: *image
+        args:
+          - sync
+        env:
+          - name: TZ
+            value: Australia/Sydney
+        envFrom:
+          - secretRef:
+              name: recyclarr
+        volumeMounts:
+          - name: config
+            mountPath: /config
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
