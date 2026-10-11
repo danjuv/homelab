@@ -9,8 +9,8 @@ controllers:
       main:
         image:
           repository: ghcr.io/autobrr/autobrr
-          tag: v0.26.1
-          digest: sha256:aec518997a02732e3cf46fb6586aa094a02fc4f5f0731637365f3eda31815198
+          tag: v1.88.0
+          digest: sha256:e200008d43fe6cd2d944c9bcf20900cfb8ba8a8e509625bb78ee51910b994005
         env:
           TZ: "Australia/Sydney"
         probes:
