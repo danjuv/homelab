@@ -1,0 +1,96 @@
+controllers:
+  main:
+    pod:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+    containers:
+      main:
+        image:
+          repository: ghcr.io/autobrr/qui
+          tag: v1.31.1
+          digest: sha256:6ee1cf6df0a82687089e6e181aad09edb826b4b779603c56a28c803d19db99fd
+        env:
+          TZ: "Australia/Sydney"
+          QUI__HOST: "0.0.0.0"
+          QUI__SESSION_COOKIE_SECURE: "true"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz/liveness
+                port: 7476
+              periodSeconds: 30
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz/readiness
+                port: 7476
+              periodSeconds: 10
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz/readiness
+                port: 7476
+              periodSeconds: 5
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 7476
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: qui-homelab-tls
+        hosts:
+          - qui.home.lab
+    hosts:
+      - host: qui.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
