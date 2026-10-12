@@ -95,3 +95,8 @@ persistence:
     storageClass: longhorn
     globalMounts:
       - path: /config
+  downloads:
+    type: persistentVolumeClaim
+    existingClaim: nfs-downloads
+    globalMounts:
+      - path: /downloads
