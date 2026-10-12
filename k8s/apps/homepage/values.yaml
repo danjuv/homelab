@@ -64,6 +64,11 @@ config:
               username: "{{HOMEPAGE_VAR_QBITTORRENT_USER}}"
               password: "{{HOMEPAGE_VAR_QBITTORRENT_PASS}}"
               enableLeechProgress: true
+        - qui:
+            icon: qui.png
+            href: https://qui.home.lab
+            description: qBittorrent web UI
+            siteMonitor: http://qui.media:7476/health
         - Seerr:
             icon: seerr.png
             href: https://overseerr.home.lab
