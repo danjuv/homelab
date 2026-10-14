@@ -16,6 +16,9 @@
   },
   "bazel": {
     "managerFilePatterns": [
+      "/(^|/)WORKSPACE(|\\.bazel|\\.bzlmod)$/",
+      "/\\.WORKSPACE\\.bazel$/",
+      "/\\.bzl$/",
       "/(^|/)MODULE\\.bazel$/"
     ]
   },
