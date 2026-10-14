@@ -85,7 +85,7 @@ spec:
               default: "-"
       initContainers:
         - name: clone
-          image: &image ghcr.io/danjuv/opencode:1.18.35@sha256:057549c5861a6026f5dbbde25311da5fc7e9ae1a798b038e275be97f9947d897
+          image: &image ghcr.io/danjuv/opencode:1.19.0@sha256:7660548680c75356f640f988c56651e6703ced64e83eef48a4fc51ce4cec0f6f
           command:
             - sh
             - -c
