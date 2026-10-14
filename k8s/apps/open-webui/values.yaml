@@ -47,6 +47,18 @@ extraEnvVars:
     value: "True"
   - name: CORS_ALLOW_ORIGIN
     value: https://chat.home.lab
+  - name: ENABLE_WEB_SEARCH
+    value: "True"
+  - name: WEB_SEARCH_ENGINE
+    value: searxng
+  - name: SEARXNG_QUERY_URL
+    value: http://searxng.searxng.svc.cluster.local:8080/search?q=<query>
+  - name: WEB_SEARCH_RESULT_COUNT
+    value: "5"
+  - name: WEB_SEARCH_CONCURRENT_REQUESTS
+    value: "2"
+  - name: BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL
+    value: "True"
 
 ingress:
   enabled: true

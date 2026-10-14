@@ -32,6 +32,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Tautulli | Plex/media server monitoring | [tautulli.home.lab](https://tautulli.home.lab) |
 | Homepage | Dashboard | [home.lab](https://home.lab) |
 | Home Assistant | Home automation | [homeassistant.home.lab](https://homeassistant.home.lab) |
+| SearXNG | Private metasearch backend for Open WebUI web search |  |
 
 ## Structure
 
