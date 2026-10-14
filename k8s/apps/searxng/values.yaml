@@ -1,0 +1,117 @@
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 977
+    runAsGroup: 977
+    fsGroup: 977
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    replicas: 1
+    containers:
+      main:
+        image:
+          repository: docker.io/searxng/searxng
+          tag: 2026.10.13-22c64b8d3
+          digest: sha256:9b61996edcc679fb6665290f95fda15389a14eda6060e41a25c63ab2758f2436
+        env:
+          - name: SEARXNG_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: searxng
+                key: SEARXNG_SECRET
+          - name: SEARXNG_BASE_URL
+            value: http://searxng.searxng.svc.cluster.local:8080/
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              periodSeconds: 30
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              periodSeconds: 10
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /healthz
+                port: 8080
+              periodSeconds: 5
+              failureThreshold: 30
+
+configMaps:
+  settings:
+    data:
+      settings.yml: |
+        use_default_settings: true
+        general:
+          instance_name: homelab
+        server:
+          limiter: false
+          image_proxy: false
+          public_instance: false
+        search:
+          safe_search: 0
+          formats:
+            - html
+            - json
+        ui:
+          static_use_hash: true
+
+persistence:
+  settings:
+    type: configMap
+    identifier: settings
+    advancedMounts:
+      main:
+        main:
+          - path: /etc/searxng/settings.yml
+            subPath: settings.yml
+            readOnly: true
+  cache:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /var/cache/searxng
+  tmp:
+    type: emptyDir
+    advancedMounts:
+      main:
+        main:
+          - path: /tmp
+
+service:
+  main:
+    controller: main
+    type: ClusterIP
+    ports:
+      http:
+        port: 8080
