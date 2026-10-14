@@ -20,20 +20,22 @@ use_repo(apko, "opencode_base")
 # renovate: datasource=github-releases depName=anomalyco/opencode
 OPENCODE_VERSION = "1.18.35"
 
+# Version is literal in the URL so Renovate's bazel manager updates it and recomputes the sha256.
 http_archive(
     name = "opencode_bin",
     build_file_content = 'exports_files(["opencode"])',
     sha256 = "90c97d4a24d36437bce36f27195c9cd2e0b70ed037a04d1c6a6740eb246c2a73",
-    urls = ["https://github.com/anomalyco/opencode/releases/download/v%s/opencode-linux-x64-baseline.tar.gz" % OPENCODE_VERSION],
+    urls = ["https://github.com/anomalyco/opencode/releases/download/v1.18.35/opencode-linux-x64-baseline.tar.gz"],
 )
 
 # Not packaged in Wolfi.
 # renovate: datasource=github-releases depName=yannh/kubeconform
 KUBECONFORM_VERSION = "0.8.0"
 
+# Version is literal in the URL so Renovate's bazel manager updates it and recomputes the sha256.
 http_archive(
     name = "kubeconform_bin",
     build_file_content = 'exports_files(["kubeconform"])',
     sha256 = "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883",
-    urls = ["https://github.com/yannh/kubeconform/releases/download/v%s/kubeconform-linux-amd64.tar.gz" % KUBECONFORM_VERSION],
+    urls = ["https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz"],
 )
