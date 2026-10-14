@@ -10,7 +10,8 @@
   },
   "kustomize": {
     "managerFilePatterns": [
-      "/k8s/admin/metallb/kustomization\\.yaml$/"
+      "/k8s/admin/metallb/kustomization\\.yaml$/",
+      "/k8s/apps/hindsight/kustomization\\.yaml$/"
     ]
   },
   "customManagers": [

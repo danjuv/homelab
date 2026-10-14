@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: hindsight
+helmCharts:
+  - name: hindsight
+    repo: oci://ghcr.io/vectorize-io/charts
+    version: 1.0.0
+    releaseName: hindsight
+    namespace: hindsight
+    valuesFile: values.yaml
+resources:
+  - sealedsecret.yaml
+patches:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: hindsight-api
+    patch: |-
+      - op: add
+        path: /spec/strategy
+        value:
+          type: Recreate

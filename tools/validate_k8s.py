@@ -166,6 +166,15 @@ def main():
                     ref, relative = value_file[1:].split("/", 1)
                     if any(item.get("ref") == ref and item["repoURL"] in LOCAL_REPOS for item in sources):
                         values_files.add(inside(root, relative))
+    # Kustomizations may inflate Helm charts; their values files are inputs too.
+    for path, docs in parsed.items():
+        if path.name not in KUSTOMIZATIONS:
+            continue
+        for doc in docs:
+            for chart in doc.get("helmCharts") or []:
+                value_file = chart.get("valuesFile")
+                if value_file:
+                    values_files.add(inside(root, str(path.parent / value_file)))
     for path, docs in parsed.items():
         if path in values_files or path.name in KUSTOMIZATIONS:
             continue
@@ -210,7 +219,7 @@ def main():
 
         for directory in sorted(kustomizations):
             try:
-                resources.extend(documents(run("kustomize", "build", directory)))
+                resources.extend(documents(run("kustomize", "build", "--enable-helm", directory)))
             except (subprocess.CalledProcessError, yaml.YAMLError) as error:
                 errors.append(f"{directory}: {error}")
 
