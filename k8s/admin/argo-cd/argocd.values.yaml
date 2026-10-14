@@ -22,4 +22,4 @@ repoServer:
 configs:
   cm:
     timeout.reconciliation: 60s
-    kustomize.buildOptions: --enable-helm --enable-alpha-plugins --enable-exec
+    kustomize.buildOptions: --enable-helm
