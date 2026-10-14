@@ -14,6 +14,14 @@
       "/k8s/apps/hindsight/kustomization\\.yaml$/"
     ]
   },
+  "bazel": {
+    "managerFilePatterns": [
+      "/(^|/)WORKSPACE(|\\.bazel|\\.bzlmod)$/",
+      "/\\.WORKSPACE\\.bazel$/",
+      "/\\.bzl$/",
+      "/(^|/)MODULE\\.bazel$/"
+    ]
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -31,6 +39,24 @@
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s*\\n\\s*[\\w.-]+:\\s*[\"']?(?<currentValue>[^\\s\"']+)"
       ],
       "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)MODULE\\.bazel$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s*\\n\\s*[A-Za-z0-9_]+\\s*=\\s*[\"'](?<currentValue>[^\"']+)[\"']"
+      ],
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v?(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/k8s/apps/opencode/.+\\.yaml$/"],
+      "matchStrings": [
+        "image:\\s*(?:&\\w+\\s+)?(?<depName>[^\\s\"'@]+):(?<currentValue>[^@\\s\"']+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
@@ -69,6 +95,22 @@
       "matchDepNames": ["ghcr.io/containers/charts/kubernetes-mcp-server/kubernetes-mcp-server"],
       "overridePackageName": "containers/charts/kubernetes-mcp-server",
       "registryUrls": ["https://ghcr.io"]
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/danjuv/opencode"],
+      "versioning": "semver",
+      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/"
+    },
+    {
+      "matchPackageNames": ["anomalyco/opencode"],
+      "groupName": "opencode",
+      "allowedVersions": "/^v?\\d+\\.\\d+\\.\\d+$/"
+    },
+    {
+      "matchPackageNames": ["yannh/kubeconform"],
+      "groupName": "kubeconform",
+      "allowedVersions": "/^v?\\d+\\.\\d+\\.\\d+$/"
     },
     {
       "matchUpdateTypes": ["minor", "patch", "digest"],
