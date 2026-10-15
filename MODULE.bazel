@@ -18,14 +18,14 @@ apko.translate_lock(
 use_repo(apko, "opencode_base")
 
 # renovate: datasource=github-releases depName=anomalyco/opencode
-OPENCODE_VERSION = "1.19.0"
+OPENCODE_VERSION = "1.19.1"
 
 # Version is literal in the URL so Renovate's bazel manager updates it and recomputes the sha256.
 http_archive(
     name = "opencode_bin",
     build_file_content = 'exports_files(["opencode"])',
-    sha256 = "6334d70db3990721ea454357e9cf2573c8685524ad7769af9d52cbffb7008438",
-    urls = ["https://github.com/anomalyco/opencode/releases/download/v1.19.0/opencode-linux-x64-baseline.tar.gz"],
+    sha256 = "e102a82621e82a13c90a769a3389aad28d5d375d1f6566680c5c7f948d86b55d",
+    urls = ["https://github.com/anomalyco/opencode/releases/download/v1.19.1/opencode-linux-x64-baseline.tar.gz"],
 )
 
 # Not packaged in Wolfi.
