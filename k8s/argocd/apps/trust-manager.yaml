@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: trust-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  sources:
+    - chart: trust-manager
+      repoURL: oci://quay.io/jetstack/charts/trust-manager
+      targetRevision: v0.25.0
+      helm:
+        releaseName: trust-manager
+        valueFiles:
+          - $values/k8s/admin/trust-manager/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/admin/trust-manager
+      directory:
+        include: bundle.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
