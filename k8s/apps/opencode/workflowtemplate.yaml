@@ -17,6 +17,10 @@ spec:
   serviceAccountName: opencode-agent
   # Hard cap; the per-task timeout below is usually lower.
   activeDeadlineSeconds: 7200
+  # Delete task and notify pods together once the workflow finishes.
+  podGC:
+    strategy: OnWorkflowCompletion
+    deleteDelayDuration: 10m
   arguments:
     parameters:
       # Base64 so the text can't be expanded by Argo's {{...}} templating; it
