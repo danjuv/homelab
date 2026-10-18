@@ -1,0 +1,87 @@
+controllers:
+  main:
+    pod:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+    containers:
+      main:
+        image:
+          repository: ghcr.io/home-operations/bazarr
+          tag: 1.6.2
+          digest: sha256:17dc1cff22e99694ffbfb06555526cb47a66b362b4d6c982f06b557f7caae2bb
+        env:
+          TZ: "Australia/Sydney"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 6767
+              periodSeconds: 30
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 6767
+              periodSeconds: 10
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              tcpSocket:
+                port: 6767
+              periodSeconds: 5
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 6767
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: bazarr-homelab-tls
+        hosts:
+          - bazarr.home.lab
+    hosts:
+      - host: bazarr.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  tv:
+    type: persistentVolumeClaim
+    existingClaim: nfs-tv-shows
+    globalMounts:
+      - path: /tv
+  movies:
+    type: persistentVolumeClaim
+    existingClaim: nfs-movies
+    globalMounts:
+      - path: /movies

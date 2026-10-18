@@ -44,6 +44,15 @@ config:
               url: http://radarr.media:7878
               key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
               enableQueue: true
+        - Bazarr:
+            icon: bazarr.png
+            href: https://bazarr.home.lab
+            description: Subtitles
+            siteMonitor: http://bazarr.media:6767/
+            widget:
+              type: bazarr
+              url: http://bazarr.media:6767
+              key: "{{HOMEPAGE_VAR_BAZARR_KEY}}"
         - Prowlarr:
             icon: prowlarr.png
             href: https://prowlarr.home.lab
