@@ -27,6 +27,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Sonarr | TV show management | [sonarr.home.lab](https://sonarr.home.lab) |
 | Radarr | Movie management | [radarr.home.lab](https://radarr.home.lab) |
 | Bazarr | Subtitle management | [bazarr.home.lab](https://bazarr.home.lab) |
+| Shelfmark | Ebook search & request | [shelfmark.home.lab](https://shelfmark.home.lab) |
 | Prowlarr | Indexer management | [prowlarr.home.lab](https://prowlarr.home.lab) |
 | qBittorrent | Torrent client | [qbt.home.lab](https://qbt.home.lab) |
 | Seer | Media request management | [overseerr.home.lab](https://overseerr.home.lab) |

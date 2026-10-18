@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shelfmark
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - chart: app-template
+      repoURL: oci://ghcr.io/bjw-s-labs/helm/app-template
+      targetRevision: 5.3.0
+      helm:
+        releaseName: shelfmark
+        valueFiles:
+          - $values/k8s/apps/shelfmark/values.yaml
+    - repoURL: git@github.com:danjuv/homelab.git
+      targetRevision: HEAD
+      ref: values
+      path: k8s/apps/shelfmark
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: media
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
+      enabled: true
