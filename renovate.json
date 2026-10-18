@@ -92,6 +92,11 @@
       "registryUrls": ["https://ghcr.io"]
     },
     {
+      "matchDepNames": ["ghcr.io/grimmory-tools/helm-charts/grimmory"],
+      "overridePackageName": "grimmory-tools/helm-charts/grimmory",
+      "registryUrls": ["https://ghcr.io"]
+    },
+    {
       "matchManagers": ["argocd"],
       "matchDepNames": ["ghcr.io/containers/charts/kubernetes-mcp-server/kubernetes-mcp-server"],
       "overridePackageName": "containers/charts/kubernetes-mcp-server",

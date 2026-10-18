@@ -101,7 +101,7 @@ config:
             href: https://argo-workflows.home.lab/workflows/media
             description: Plex metadata & collections
         - Grimmory:
-            icon: booklore.png
+            icon: sh-grimmory.png
             href: https://grimmory.home.lab
             description: eBooks, comics & audiobooks
             siteMonitor: http://grimmory.media:6060/api/v1/healthcheck
