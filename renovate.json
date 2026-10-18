@@ -11,6 +11,7 @@
   "kustomize": {
     "managerFilePatterns": [
       "/k8s/admin/metallb/kustomization\\.yaml$/",
+      "/k8s/apps/grimmory/kustomization\\.yaml$/",
       "/k8s/apps/hindsight/kustomization\\.yaml$/"
     ]
   },

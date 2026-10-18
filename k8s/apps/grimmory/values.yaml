@@ -1,0 +1,118 @@
+fullnameOverride: grimmory
+
+image:
+  repository: grimmory/grimmory
+  tag: v3.5.0
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  automount: false
+
+mariadb:
+  enabled: true
+  auth:
+    database: grimmory
+    username: grimmory
+    # Credentials are provisioned as a SealedSecret by a human (see PR notes).
+    existingSecret: grimmory-mariadb
+    secretKeys:
+      rootPasswordKey: mariadb-root-password
+      userPasswordKey: mariadb-password
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 8Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+externalDatabase:
+  enabled: false
+
+persistence:
+  dataVolume:
+    enabled: true
+    existingClaim: grimmory-data
+  booksVolume:
+    enabled: true
+    existingClaim: grimmory-books
+
+extraEnv:
+  - name: TZ
+    value: Australia/Sydney
+  - name: USER_ID
+    value: "1000"
+  - name: GROUP_ID
+    value: "1000"
+  # Library and app data are Longhorn block volumes; BookDrop intake is NFS.
+  - name: DISK_TYPE
+    value: LOCAL
+
+extraVolumes:
+  - name: bookdrop
+    persistentVolumeClaim:
+      claimName: ebooks-bookdrop
+
+extraVolumeMounts:
+  - name: bookdrop
+    mountPath: /bookdrop
+
+securityContext:
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 1Gi
+  limits:
+    memory: 2Gi
+
+startupProbe:
+  httpGet:
+    path: /api/v1/healthcheck
+    port: http
+  periodSeconds: 10
+  failureThreshold: 30
+  timeoutSeconds: 5
+livenessProbe:
+  httpGet:
+    path: /api/v1/healthcheck
+    port: http
+  periodSeconds: 30
+  failureThreshold: 5
+  timeoutSeconds: 5
+readinessProbe:
+  httpGet:
+    path: /api/v1/healthcheck
+    port: http
+  periodSeconds: 10
+  failureThreshold: 3
+  timeoutSeconds: 5
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+    nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # Kobo sends large headers; per-Ingress buffer sizes from the Kobo docs.
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "512k"
+  hosts:
+    - host: grimmory.home.lab
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: grimmory-homelab-tls
+      hosts:
+        - grimmory.home.lab
