@@ -103,7 +103,8 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-    # Kobo sends large headers; per-Ingress buffer sizes from the Kobo docs.
+    # Kobo needs large headers; ingress-nginx uses one size for proxy_buffer_size
+    # and proxy_buffers (upstream: 128k/4x256k), so 256k x4 with 512k busy.
     nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
     nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "512k"
