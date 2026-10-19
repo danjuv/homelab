@@ -29,7 +29,7 @@ controllers:
             cpu: 100m
             memory: 256Mi
           limits:
-            memory: 1Gi
+            memory: 2Gi
         probes:
           liveness:
             enabled: true
@@ -66,3 +66,12 @@ service:
     ports:
       http:
         port: 8191
+
+persistence:
+  # Chrome crashes its renderers with the container's default 64Mi /dev/shm.
+  shm:
+    type: emptyDir
+    medium: Memory
+    sizeLimit: 512Mi
+    globalMounts:
+      - path: /dev/shm
