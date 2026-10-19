@@ -47,18 +47,9 @@ extraEnv:
     value: "1000"
   - name: GROUP_ID
     value: "1000"
-  # Library and app data are Longhorn block volumes; BookDrop intake is NFS.
+  # The /books library is on NFS; this disables in-app file moves/reorganising.
   - name: DISK_TYPE
-    value: LOCAL
-
-extraVolumes:
-  - name: bookdrop
-    persistentVolumeClaim:
-      claimName: ebooks-bookdrop
-
-extraVolumeMounts:
-  - name: bookdrop
-    mountPath: /bookdrop
+    value: NETWORK
 
 securityContext:
   allowPrivilegeEscalation: false
