@@ -14,8 +14,8 @@ controllers:
       seed-config:
         image: &image
           repository: ghcr.io/bardesss/arr-mcp
-          tag: 1.44.0
-          digest: sha256:f9ac224023d7530456304ae81199c94a109ce5bef8de76860d7c3535b456f96c
+          tag: 1.44.1
+          digest: sha256:513afeacbf0e603dc531bc1f93b68ad50f2e6cb1a1c160a266be7f9af8b77d38
         command:
           - /bin/sh
           - -c
@@ -72,7 +72,7 @@ controllers:
         image:
           repository: docker.io/nginxinc/nginx-unprivileged
           tag: 1.31.7
-          digest: sha256:94193d5c4c5df716f412bb08eb97956d98fe6b59886f0bc57d6d3a3402a88a02
+          digest: sha256:09b0d3eda2aa592d2487f284519419015cab010d7df16cd0fe224b585fc60eb6
         envFrom:
           - secretRef:
               name: arr-mcp

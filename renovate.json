@@ -11,6 +11,7 @@
   "kustomize": {
     "managerFilePatterns": [
       "/k8s/admin/metallb/kustomization\\.yaml$/",
+      "/k8s/apps/grimmory/kustomization\\.yaml$/",
       "/k8s/apps/hindsight/kustomization\\.yaml$/"
     ]
   },
@@ -88,6 +89,11 @@
       "matchManagers": ["argocd"],
       "matchDepNames": ["ghcr.io/vectorize-io/charts/hindsight/hindsight"],
       "overridePackageName": "vectorize-io/charts/hindsight",
+      "registryUrls": ["https://ghcr.io"]
+    },
+    {
+      "matchDepNames": ["ghcr.io/grimmory-tools/helm-charts/grimmory"],
+      "overridePackageName": "grimmory-tools/helm-charts/grimmory",
       "registryUrls": ["https://ghcr.io"]
     },
     {

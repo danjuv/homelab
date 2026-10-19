@@ -100,11 +100,11 @@ config:
             icon: kometa.png
             href: https://argo-workflows.home.lab/workflows/media
             description: Plex metadata & collections
-        - Shelfmark:
-            icon: shelfmark.png
-            href: https://shelfmark.home.lab
-            description: Ebook search & requests
-            siteMonitor: http://shelfmark.media:8084/api/health
+        - Grimmory:
+            icon: sh-grimmory.png
+            href: https://grimmory.home.lab
+            description: eBooks, comics & audiobooks
+            siteMonitor: http://grimmory.media:6060/api/v1/healthcheck
     - Infrastructure:
         - ArgoCD:
             icon: argo-cd.png
