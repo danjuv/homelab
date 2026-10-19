@@ -1,0 +1,28 @@
+# Kobo devices don't trust the private homelab CA, so the Kobo sync API is
+# also served over plain HTTP. ssl-redirect applies per location, so only
+# /api/kobo skips the HTTPS redirect; the web UI stays HTTPS-only.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grimmory-kobo
+  namespace: media
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "512k"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grimmory.home.lab
+      http:
+        paths:
+          - path: /api/kobo
+            pathType: Prefix
+            backend:
+              service:
+                name: grimmory
+                port:
+                  number: 6060

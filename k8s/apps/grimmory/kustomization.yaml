@@ -10,6 +10,7 @@ helmCharts:
     valuesFile: values.yaml
 resources:
   - ebooks-bookdrop.yaml
+  - kobo-ingress.yaml
   - pvcs.yaml
 patches:
   - target:

@@ -2,7 +2,6 @@ fullnameOverride: grimmory
 
 image:
   repository: grimmory/grimmory
-  tag: v3.5.0
   pullPolicy: IfNotPresent
 
 serviceAccount:
