@@ -1,0 +1,118 @@
+defaultPodOptions:
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+controllers:
+  main:
+    strategy: Recreate
+    containers:
+      main:
+        image:
+          repository: ghcr.io/calibrain/shelfmark-lite
+          tag: v1.4.0
+          digest: sha256:edc889c12c4e54076432e5377b674fed4a1aaa934890f8a678bc5b38e5088a75
+        env:
+          TZ: "Australia/Sydney"
+          FLASK_PORT: "8084"
+          # Upload completed books straight into the Grimmory library via its API.
+          # Username, password and library are set once in Settings → Downloads.
+          BOOKS_OUTPUT_MODE: "booklore"
+          BOOKLORE_HOST: "http://grimmory.media.svc.cluster.local:6060"
+          BOOKLORE_DESTINATION: "library"
+          SUPPORTED_FORMATS: "epub"
+          HARDLINK_TORRENTS: "false"
+          SESSION_COOKIE_SECURE: "true"
+          PROWLARR_ENABLED: "true"
+          PROWLARR_URL: "http://prowlarr.media.svc.cluster.local:9696"
+          PROWLARR_TORRENT_CLIENT: "qbittorrent"
+          QBITTORRENT_URL: "http://qbittorrent-main.media.svc.cluster.local:8080"
+          QBITTORRENT_CATEGORY: "books"
+          QBITTORRENT_DOWNLOAD_DIR: "/downloads/books"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 8084
+              periodSeconds: 30
+              failureThreshold: 5
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 8084
+              periodSeconds: 10
+              failureThreshold: 3
+          startup:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /api/health
+                port: 8084
+              periodSeconds: 5
+              failureThreshold: 30
+
+service:
+  main:
+    controller: main
+    ports:
+      http:
+        port: 8084
+
+ingress:
+  main:
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      - secretName: shelfmark-homelab-tls
+        hosts:
+          - shelfmark.home.lab
+    hosts:
+      - host: shelfmark.home.lab
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  downloads:
+    type: persistentVolumeClaim
+    existingClaim: nfs-downloads
+    globalMounts:
+      - path: /downloads
