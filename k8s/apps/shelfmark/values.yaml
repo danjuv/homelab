@@ -21,8 +21,12 @@ controllers:
         env:
           TZ: "Australia/Sydney"
           FLASK_PORT: "8084"
-          INGEST_DIR: "/books"
-          BOOKS_OUTPUT_MODE: "folder"
+          # Upload completed books straight into the Grimmory library via its API.
+          # Username, password and library are set once in Settings → Downloads.
+          BOOKS_OUTPUT_MODE: "booklore"
+          BOOKLORE_HOST: "http://grimmory.media.svc.cluster.local:6060"
+          BOOKLORE_DESTINATION: "library"
+          SUPPORTED_FORMATS: "epub"
           HARDLINK_TORRENTS: "false"
           SESSION_COOKIE_SECURE: "true"
           PROWLARR_ENABLED: "true"
@@ -30,7 +34,7 @@ controllers:
           PROWLARR_TORRENT_CLIENT: "qbittorrent"
           QBITTORRENT_URL: "http://qbittorrent-main.media.svc.cluster.local:8080"
           QBITTORRENT_CATEGORY: "books"
-          QBITTORRENT_DOWNLOAD_DIR: "/downloads"
+          QBITTORRENT_DOWNLOAD_DIR: "/downloads/books"
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -112,8 +116,3 @@ persistence:
     existingClaim: nfs-downloads
     globalMounts:
       - path: /downloads
-  bookdrop:
-    type: persistentVolumeClaim
-    existingClaim: ebooks-bookdrop
-    globalMounts:
-      - path: /books
