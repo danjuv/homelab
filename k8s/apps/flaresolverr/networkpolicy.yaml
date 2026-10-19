@@ -15,6 +15,9 @@ spec:
         - podSelector:
             matchLabels:
               app.kubernetes.io/instance: prowlarr
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: shelfmark
       ports:
         - protocol: TCP
           port: 8191
