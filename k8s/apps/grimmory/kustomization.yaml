@@ -10,6 +10,7 @@ helmCharts:
     valuesFile: values.yaml
 resources:
   - kobo-ingress.yaml
+  - sealedsecret.yaml
   - pvcs.yaml
 patches:
   - target:
