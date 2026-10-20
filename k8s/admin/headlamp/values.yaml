@@ -1,13 +1,11 @@
 fullnameOverride: headlamp
 
-# Default token login only: no OIDC, so the chart must not render its oidc Secret.
+# Token login only; no OIDC, so the chart must not render its oidc Secret.
 config:
   oidc:
     secret:
       create: false
 
-# Default token login: keep the chart's ServiceAccount and ClusterRoleBinding so
-# a login token can be generated with: kubectl create token headlamp -n headlamp
 serviceAccount:
   create: true
 clusterRoleBinding:
