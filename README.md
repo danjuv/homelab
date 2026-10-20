@@ -16,6 +16,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | external-dns | Automatic DNS records via Pi-hole |
 | sealed-secrets | Encrypted secrets safe to commit |
 | Longhorn | Distributed block storage |
+| Headlamp | Kubernetes web UI ([k8s.home.lab](https://k8s.home.lab)) |
 | csi-driver-nfs | NFS CSI driver |
 | nfs-volumes | NFS persistent volume definitions |
 | OpenCode | Autonomous coding agent; opens PRs from background tasks |

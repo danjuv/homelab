@@ -130,6 +130,11 @@ config:
             icon: cert-manager.png
             description: TLS certificates
             siteMonitor: http://cert-manager.cert-manager:9402/metrics
+        - Headlamp:
+            icon: headlamp.png
+            href: https://k8s.home.lab
+            description: Kubernetes web UI
+            siteMonitor: http://headlamp.headlamp:80/
     - Home:
         - Home Assistant:
             icon: home-assistant.png

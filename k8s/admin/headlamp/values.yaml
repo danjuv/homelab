@@ -1,0 +1,36 @@
+fullnameOverride: headlamp
+
+# Token login only; no OIDC, so the chart must not render its oidc Secret.
+config:
+  oidc:
+    secret:
+      create: false
+
+serviceAccount:
+  create: true
+clusterRoleBinding:
+  create: true
+  clusterRoleName: cluster-admin
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+  hosts:
+    - host: k8s.home.lab
+      paths:
+        - path: /
+          type: Prefix
+  tls:
+    - secretName: headlamp-homelab-tls
+      hosts:
+        - k8s.home.lab
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
