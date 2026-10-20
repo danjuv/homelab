@@ -1,0 +1,38 @@
+fullnameOverride: headlamp
+
+# Default token login only: no OIDC, so the chart must not render its oidc Secret.
+config:
+  oidc:
+    secret:
+      create: false
+
+# Default token login: keep the chart's ServiceAccount and ClusterRoleBinding so
+# a login token can be generated with: kubectl create token headlamp -n headlamp
+serviceAccount:
+  create: true
+clusterRoleBinding:
+  create: true
+  clusterRoleName: cluster-admin
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+  hosts:
+    - host: k8s.home.lab
+      paths:
+        - path: /
+          type: Prefix
+  tls:
+    - secretName: headlamp-homelab-tls
+      hosts:
+        - k8s.home.lab
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
