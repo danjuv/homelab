@@ -119,6 +119,10 @@
       "allowedVersions": "/^v?\\d+\\.\\d+\\.\\d+$/"
     },
     {
+      "matchPackageNames": ["qbittorrentofficial/qbittorrent-nox"],
+      "allowedVersions": "/^5\\.2\\.\\d+-lt2-\\d+$/"
+    },
+    {
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true,
       "automergeType": "pr",
