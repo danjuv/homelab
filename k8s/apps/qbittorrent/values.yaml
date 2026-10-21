@@ -49,6 +49,9 @@ service:
   bittorrent:
     controller: main
     type: LoadBalancer
+    annotations:
+      # Client-side apply merges service ports by number only, dropping the UDP entry.
+      argocd.argoproj.io/sync-options: ServerSideApply=true
     ports:
       bittorrent-tcp:
         port: 50413
