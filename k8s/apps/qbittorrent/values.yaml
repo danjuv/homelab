@@ -51,10 +51,10 @@ service:
     type: LoadBalancer
     ports:
       bittorrent-tcp:
-        port: 6881
+        port: 50413
         protocol: TCP
       bittorrent-udp:
-        port: 6881
+        port: 50413
         protocol: UDP
 
 ingress:
