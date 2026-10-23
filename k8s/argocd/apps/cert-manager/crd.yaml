@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/cert-manager/cert-manager.git
-    targetRevision: v1.21.2
+    targetRevision: v1.21.3
     path: deploy/crds
   destination:
     server: https://kubernetes.default.svc
