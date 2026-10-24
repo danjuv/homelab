@@ -122,9 +122,13 @@ configMaps:
           sonarr:
             url: http://127.0.0.1:18989
             api_key: proxy-injects-the-real-key
+            permissions:
+              safe_write: true
           radarr:
             url: http://127.0.0.1:17878
             api_key: proxy-injects-the-real-key
+            permissions:
+              safe_write: true
           prowlarr:
             url: http://127.0.0.1:19696
             api_key: proxy-injects-the-real-key
@@ -146,12 +150,32 @@ configMaps:
             proxy_set_header Host sonarr.media.svc.cluster.local;
             proxy_set_header X-Api-Key "${SONARR_API_KEY}";
           }
+
+          # trigger_search/trigger_scan (safe_write). Adding, grabbing,
+          # editing and deleting stay GET-only above.
+          location = /api/v3/command {
+            limit_except GET POST {
+              deny all;
+            }
+            proxy_pass http://sonarr.media.svc.cluster.local:8989;
+            proxy_set_header Host sonarr.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${SONARR_API_KEY}";
+          }
         }
 
         server {
           listen 127.0.0.1:17878;
           location / {
             limit_except GET {
+              deny all;
+            }
+            proxy_pass http://radarr.media.svc.cluster.local:7878;
+            proxy_set_header Host radarr.media.svc.cluster.local;
+            proxy_set_header X-Api-Key "${RADARR_API_KEY}";
+          }
+
+          location = /api/v3/command {
+            limit_except GET POST {
               deny all;
             }
             proxy_pass http://radarr.media.svc.cluster.local:7878;
