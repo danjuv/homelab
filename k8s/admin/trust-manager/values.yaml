@@ -1,0 +1,14 @@
+app:
+  trust:
+    namespace: cert-manager
+crds:
+  enabled: true
+  keep: true
+defaultPackage:
+  enabled: true
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi

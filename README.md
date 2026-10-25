@@ -20,6 +20,8 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | csi-driver-nfs | NFS CSI driver |
 | nfs-volumes | NFS persistent volume definitions |
 | OpenCode | Autonomous coding agent; opens PRs from background tasks |
+| Authelia | Single sign-on and MFA portal |
+| trust-manager | Distributes the homelab CA bundle to every namespace |
 
 ## Apps
 

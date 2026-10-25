@@ -1,0 +1,66 @@
+pod:
+  kind: Deployment
+  replicas: 1
+  strategy:
+    type: Recreate
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-ca-issuer
+  tls:
+    enabled: true
+    secret: authelia-homelab-tls
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 1Gi
+  accessModes:
+    - ReadWriteOnce
+secret:
+  existingSecret: authelia
+  additionalSecrets:
+    authelia-users:
+      path: users
+configMap:
+  theme: auto
+  log:
+    level: info
+  totp:
+    issuer: home.lab
+  webauthn:
+    display_name: Homelab
+  authentication_backend:
+    file:
+      enabled: true
+      path: /secrets/users/users_database.yml
+      watch: true
+  access_control:
+    default_policy: deny
+    rules:
+      - domain:
+          - home.lab
+          - '*.home.lab'
+        policy: one_factor
+  session:
+    cookies:
+      - subdomain: auth
+        domain: home.lab
+        default_redirection_url: https://home.lab
+  storage:
+    local:
+      enabled: true
+      path: /config/db.sqlite3
+  notifier:
+    filesystem:
+      enabled: true
+      filename: /config/notification.txt
+  identity_providers:
+    oidc:
+      enabled: false
