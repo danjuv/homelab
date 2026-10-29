@@ -14,8 +14,8 @@ controllers:
       seed-config:
         image: &image
           repository: ghcr.io/bardesss/arr-mcp
-          tag: 1.45.1
-          digest: sha256:575edb9fed050944a3d70165634eee62a46b1d892830f46d9a937bf91a786e61
+          tag: 1.46.0
+          digest: sha256:bde2bd3eaa10860766be332e2f7b4a146faecf496f3793edc2439e54bb38bab0
         command:
           - /bin/sh
           - -c
