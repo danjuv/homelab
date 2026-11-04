@@ -36,7 +36,7 @@ configMaps:
                   rating2_image: mal
         settings:
           cache: true
-          cache_expiration: 60
+          cache_expiration: 7
           asset_directory: config/assets
           asset_folders: true
           create_asset_folders: false
@@ -69,6 +69,7 @@ configMaps:
         mal:
           client_id: <<MAL_CLIENT_ID>>
           client_secret: <<MAL_CLIENT_SECRET>>
+          cache_expiration: 7
           # Bootstrap tokens; render-config keeps Kometa's refreshed ones.
           authorization:
             access_token: <<MAL_ACCESS_TOKEN>>
@@ -80,7 +81,7 @@ configMaps:
         # kometa SealedSecret as KOMETA_MDBLIST_APIKEY.
         mdblist:
           apikey: <<MDBLIST_APIKEY>>
-          cache_expiration: 60
+          cache_expiration: 7
       render-config.py: |
         import hashlib
         import os
