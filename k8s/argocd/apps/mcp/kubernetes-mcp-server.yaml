@@ -8,7 +8,7 @@ spec:
   sources:
     - chart: kubernetes-mcp-server
       repoURL: oci://ghcr.io/containers/charts/kubernetes-mcp-server
-      targetRevision: 0.1.2
+      targetRevision: 0.1.3
       helm:
         releaseName: kubernetes-mcp-server
         valueFiles:
