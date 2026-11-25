@@ -19,6 +19,7 @@ Helm chart versions are kept up to date via [Renovate](https://docs.renovatebot.
 | Headlamp | Kubernetes web UI ([k8s.home.lab](https://k8s.home.lab)) |
 | csi-driver-nfs | NFS CSI driver |
 | nfs-volumes | NFS persistent volume definitions |
+| Garage | S3-compatible object storage for workflow artifacts and logs |
 | OpenCode | Autonomous coding agent; opens PRs from background tasks |
 
 ## Apps
