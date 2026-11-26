@@ -29,7 +29,7 @@ spec:
       # Nothing here needs cluster access.
       automountServiceAccountToken: false
       container:
-        image: ghcr.io/danjuv/opencode:2.4.1@sha256:9786194fc768f9cef07902a244dddaf7c6ac91f9ca439b0ad0172bf0f200af16
+        image: ghcr.io/danjuv/opencode:2.4.2@sha256:c95cbacc055e9bbcc84be687bae4748178b5cdd93bd2432f458901ba089a5a2e
         command: [python3, -c]
         args:
           - |
